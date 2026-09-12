@@ -874,6 +874,15 @@
     .summary dt { color: var(--muted); }
     .summary dd { margin: 0; font-weight: 600; color: var(--cocoa-deep); }
 
+    .addr-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 480px) {
+      .addr-grid { grid-template-columns: 1fr 1fr; }
+    }
+
     .otp-input {
       letter-spacing: 0.42em;
       font-size: 1.45rem;
@@ -1473,16 +1482,41 @@
               <p class="error" data-err="ownerEmail"></p>
             </div>
             <div class="field">
-              <label for="ownerId">身分證字號 <span class="req">必填</span></label>
-              <input id="ownerId" name="ownerId" type="text" maxlength="10" autocomplete="off" placeholder="A123456789" style="text-transform:uppercase" />
-              <span class="hint">僅供本契約登記核對，入住時仍請攜帶身分證影本</span>
-              <p class="error" data-err="ownerId"></p>
+              <label for="lineName">LINE 名稱 <span class="req">必填</span></label>
+              <input id="lineName" name="lineName" type="text" maxlength="50" />
+              <span class="hint">請填 LINE 顯示名稱，不是 LINE ID</span>
+              <p class="error" data-err="lineName"></p>
             </div>
             <div class="field">
-              <label for="ownerAddress">居住地址 <span class="req">必填</span></label>
-              <input id="ownerAddress" name="ownerAddress" type="text" maxlength="80" autocomplete="street-address" />
-              <p class="error" data-err="ownerAddress"></p>
+              <label for="ownerId">身分證字號 <span class="req">必填</span></label>
+              <input id="ownerId" name="ownerId" type="text" maxlength="10" autocomplete="off" inputmode="text" placeholder="A123456789" style="text-transform:uppercase" />
+              <span class="hint">第 1 碼英文大寫，後 9 碼數字</span>
+              <p class="error" data-err="ownerId"></p>
             </div>
+            <fieldset class="field">
+              <legend>居住地址 <span class="req">必填</span></legend>
+              <div class="addr-grid">
+                <div class="field">
+                  <label for="addrCity">縣市 <span class="req">必填</span></label>
+                  <select id="addrCity" name="addrCity">
+                    <option value="">請選擇縣市</option>
+                  </select>
+                  <p class="error" data-err="addrCity"></p>
+                </div>
+                <div class="field">
+                  <label for="addrDistrict">區域 <span class="req">必填</span></label>
+                  <select id="addrDistrict" name="addrDistrict" disabled>
+                    <option value="">請先選擇縣市</option>
+                  </select>
+                  <p class="error" data-err="addrDistrict"></p>
+                </div>
+              </div>
+              <div class="field" style="margin-top:12px">
+                <label for="addrStreet">路段巷弄門牌 <span class="req">必填</span></label>
+                <input id="addrStreet" name="addrStreet" type="text" maxlength="50" autocomplete="street-address" placeholder="例：敦富五街37號" />
+                <p class="error" data-err="addrStreet"></p>
+              </div>
+            </fieldset>
             <div class="field">
               <label for="emergencyName">緊急聯絡人 <span class="req">必填</span></label>
               <input id="emergencyName" name="emergencyName" type="text" maxlength="50" autocomplete="name" />
@@ -1718,6 +1752,36 @@
           </div>
           <p class="error" data-err="p__IDX___breed"></p>
         </div>
+        <fieldset class="field">
+          <legend>護食或護玩具 <span class="req">必填</span></legend>
+          <div class="chips duo">
+            <label class="choice"><input type="radio" name="p__IDX___guard" data-k="guardFood" value="無" /> 無此狀況</label>
+            <label class="choice"><input type="radio" name="p__IDX___guard" data-k="guardFood" value="有" /> 有護食或護玩具</label>
+          </div>
+          <p class="error" data-err="p__IDX___guard"></p>
+        </fieldset>
+        <fieldset class="field">
+          <legend>對人或其他毛孩 <span class="req">必填</span></legend>
+          <div class="chips">
+            <label class="choice wide"><input type="radio" name="p__IDX___social" data-k="withPets" value="友善" /> 大多友善</label>
+            <label class="choice wide"><input type="radio" name="p__IDX___social" data-k="withPets" value="會緊張低吼" /> 會緊張或低吼</label>
+            <label class="choice wide"><input type="radio" name="p__IDX___social" data-k="withPets" value="有攻擊經驗" /> 有攻擊或咬傷經驗</label>
+          </div>
+          <p class="error" data-err="p__IDX___social"></p>
+        </fieldset>
+        <fieldset class="field">
+          <legend>分離焦慮 <span class="req">必填</span></legend>
+          <div class="chips">
+            <label class="choice wide"><input type="radio" name="p__IDX___anxiety" data-k="anxiety" value="不明顯" /> 不明顯</label>
+            <label class="choice wide"><input type="radio" name="p__IDX___anxiety" data-k="anxiety" value="會叫或破壞" /> 主人離開會叫或破壞</label>
+            <label class="choice wide"><input type="radio" name="p__IDX___anxiety" data-k="anxiety" value="不確定" /> 不確定</label>
+          </div>
+          <p class="error" data-err="p__IDX___anxiety"></p>
+        </fieldset>
+        <div class="field">
+          <label for="p__IDX___behaviorNote">其他行為備註</label>
+          <textarea id="p__IDX___behaviorNote" data-k="behaviorNote" maxlength="200" rows="3" placeholder="例如怕吹風機、不喜歡摸頭、會開門逃"></textarea>
+        </div>
       </div>
     </article>
   </template>
@@ -1733,6 +1797,32 @@
       狗: ["米克斯", "瑪爾濟斯", "博美", "貴賓", "玩具貴賓", "迷你貴賓", "比熊", "吉娃娃", "約克夏", "雪納瑞", "法鬥", "柯基", "柴犬", "臘腸", "西施", "巴哥", "黃金獵犬", "拉布拉多", "哈士奇", "邊境牧羊犬"],
       貓: ["米克斯", "英國短毛", "美國短毛", "波斯", "布偶", "蘇格蘭摺耳", "俄羅斯藍貓"]
     };
+
+    const TW_DISTRICTS = {
+      "臺北市": ["中正區","大同區","中山區","松山區","大安區","萬華區","信義區","士林區","北投區","內湖區","南港區","文山區"],
+      "新北市": ["板橋區","三重區","中和區","永和區","新莊區","新店區","土城區","蘆洲區","汐止區","樹林區","鶯歌區","三峽區","淡水區","瑞芳區","五股區","泰山區","林口區","深坑區","石碇區","坪林區","三芝區","石門區","八里區","平溪區","雙溪區","貢寮區","金山區","萬里區","烏來區"],
+      "桃園市": ["桃園區","中壢區","平鎮區","八德區","楊梅區","蘆竹區","大溪區","龍潭區","龜山區","大園區","觀音區","新屋區","復興區"],
+      "臺中市": ["中區","東區","南區","西區","北區","北屯區","西屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","沙鹿區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"],
+      "臺南市": ["中西區","東區","南區","北區","安平區","安南區","永康區","歸仁區","新化區","左鎮區","玉井區","楠西區","南化區","仁德區","關廟區","龍崎區","官田區","麻豆區","佳里區","西港區","七股區","將軍區","學甲區","北門區","新營區","後壁區","白河區","東山區","六甲區","下營區","柳營區","鹽水區","善化區","大內區","山上區","新市區","安定區"],
+      "高雄市": ["新興區","前金區","苓雅區","鹽埕區","鼓山區","旗津區","前鎮區","三民區","楠梓區","小港區","左營區","仁武區","大社區","岡山區","路竹區","阿蓮區","田寮區","燕巢區","橋頭區","梓官區","彌陀區","永安區","湖內區","鳳山區","大寮區","林園區","鳥松區","大樹區","旗山區","美濃區","六龜區","內門區","杉林區","甲仙區","桃源區","那瑪夏區","茂林區","茄萣區"],
+      "基隆市": ["仁愛區","信義區","中正區","中山區","安樂區","暖暖區","七堵區"],
+      "新竹市": ["東區","北區","香山區"],
+      "嘉義市": ["東區","西區"],
+      "新竹縣": ["竹北市","竹東鎮","新埔鎮","關西鎮","湖口鄉","新豐鄉","芎林鄉","橫山鄉","北埔鄉","寶山鄉","峨眉鄉","尖石鄉","五峰鄉"],
+      "苗栗縣": ["苗栗市","頭份市","竹南鎮","後龍鎮","通霄鎮","苑裡鎮","卓蘭鎮","造橋鄉","西湖鄉","頭屋鄉","公館鄉","銅鑼鄉","三義鄉","大湖鄉","獅潭鄉","三灣鄉","南庄鄉","泰安鄉"],
+      "彰化縣": ["彰化市","員林市","和美鎮","鹿港鎮","溪湖鎮","田中鎮","北斗鎮","二林鎮","線西鄉","伸港鄉","福興鄉","秀水鄉","花壇鄉","芬園鄉","大村鄉","埔鹽鄉","埔心鄉","永靖鄉","社頭鄉","二水鄉","田尾鄉","埤頭鄉","芳苑鄉","大城鄉","竹塘鄉","溪州鄉"],
+      "南投縣": ["南投市","埔里鎮","草屯鎮","竹山鎮","集集鎮","名間鄉","鹿谷鄉","中寮鄉","魚池鄉","國姓鄉","水里鄉","信義鄉","仁愛鄉"],
+      "雲林縣": ["斗六市","斗南鎮","虎尾鎮","西螺鎮","土庫鎮","北港鎮","古坑鄉","大埤鄉","莿桐鄉","林內鄉","二崙鄉","崙背鄉","麥寮鄉","東勢鄉","褒忠鄉","臺西鄉","元長鄉","四湖鄉","口湖鄉","水林鄉"],
+      "嘉義縣": ["太保市","朴子市","布袋鎮","大林鎮","民雄鄉","溪口鄉","新港鄉","六腳鄉","東石鄉","義竹鄉","鹿草鄉","水上鄉","中埔鄉","竹崎鄉","梅山鄉","番路鄉","大埔鄉","阿里山鄉"],
+      "屏東縣": ["屏東市","潮州鎮","東港鎮","恆春鎮","萬丹鄉","長治鄉","麟洛鄉","九如鄉","里港鄉","鹽埔鄉","高樹鄉","萬巒鄉","內埔鄉","竹田鄉","新埤鄉","枋寮鄉","新園鄉","崁頂鄉","林邊鄉","南州鄉","佳冬鄉","琉球鄉","車城鄉","滿州鄉","枋山鄉","三地門鄉","霧臺鄉","瑪家鄉","泰武鄉","來義鄉","春日鄉","獅子鄉","牡丹鄉"],
+      "宜蘭縣": ["宜蘭市","羅東鎮","蘇澳鎮","頭城鎮","礁溪鄉","壯圍鄉","員山鄉","冬山鄉","五結鄉","三星鄉","大同鄉","南澳鄉"],
+      "花蓮縣": ["花蓮市","鳳林鎮","玉里鎮","新城鄉","吉安鄉","壽豐鄉","光復鄉","豐濱鄉","瑞穗鄉","富里鄉","秀林鄉","萬榮鄉","卓溪鄉"],
+      "臺東縣": ["臺東市","成功鎮","關山鎮","卑南鄉","鹿野鄉","池上鄉","東河鄉","長濱鄉","太麻里鄉","大武鄉","綠島鄉","海端鄉","延平鄉","金峰鄉","達仁鄉","蘭嶼鄉"],
+      "澎湖縣": ["馬公市","湖西鄉","白沙鄉","西嶼鄉","望安鄉","七美鄉"],
+      "金門縣": ["金城鎮","金湖鎮","金沙鎮","金寧鄉","烈嶼鄉","烏坵鄉"],
+      "連江縣": ["南竿鄉","北竿鄉","莒光鄉","東引鄉"]
+    };
+
     let current = 1;
     let pad = null;
     let petSeq = 0;
@@ -1810,7 +1900,7 @@
     function toE164(d) { return d ? "+886" + d.slice(1) : ""; }
     function twIdOk(s) {
       s = String(s || "").toUpperCase().trim();
-      if (!/^[A-Z][12]\d{8}$/.test(s)) return false;
+      if (!/^[A-Z]\d{9}$/.test(s)) return false;
       const letters = "ABCDEFGHJKLMNPQRSTUVXYWZIO";
       const n = letters.indexOf(s[0]) + 10;
       const nums = [Math.floor(n / 10), n % 10].concat(s.slice(1).split("").map(Number));
@@ -1925,6 +2015,10 @@
       const pick = d.breedPick || (list.indexOf(d.breed) >= 0 ? d.breed : (d.breed ? "其他" : ""));
       fillBreedOptions(card, pick);
       if (pick === "其他") cardSet(card, "breedOther", d.breedOther || d.breed || "");
+      cardSet(card, "guardFood", d.guardFood || "");
+      cardSet(card, "withPets", d.withPets || "");
+      cardSet(card, "anxiety", d.anxiety || "");
+      cardSet(card, "behaviorNote", d.behaviorNote || "");
     }
     function collectPet(card) {
       return {
@@ -1933,8 +2027,47 @@
         gender: "",
         breed: cardVal(card, "breed") === "其他" ? cardVal(card, "breedOther") : cardVal(card, "breed"),
         breedPick: cardVal(card, "breed"),
-        breedOther: cardVal(card, "breedOther")
+        breedOther: cardVal(card, "breedOther"),
+        guardFood: cardRadio(card, "guardFood"),
+        withPets: cardRadio(card, "withPets"),
+        anxiety: cardRadio(card, "anxiety"),
+        behaviorNote: cardVal(card, "behaviorNote")
       };
+    }
+
+    function composeAddress() {
+      return [val("addrCity"), val("addrDistrict"), val("addrStreet")].filter(Boolean).join("");
+    }
+    function fillCitySelect() {
+      const sel = document.getElementById("addrCity");
+      if (!sel || sel.getAttribute("data-ready") === "1") return;
+      Object.keys(TW_DISTRICTS).forEach((city) => {
+        const opt = document.createElement("option");
+        opt.value = city;
+        opt.textContent = city;
+        sel.appendChild(opt);
+      });
+      sel.setAttribute("data-ready", "1");
+    }
+    function fillDistrictSelect(keep) {
+      const city = val("addrCity");
+      const sel = document.getElementById("addrDistrict");
+      if (!sel) return;
+      const prev = keep != null ? keep : sel.value;
+      sel.innerHTML = "";
+      const ph = document.createElement("option");
+      ph.value = "";
+      ph.textContent = city ? "請選擇區域" : "請先選擇縣市";
+      sel.appendChild(ph);
+      const list = TW_DISTRICTS[city] || [];
+      sel.disabled = !list.length;
+      list.forEach((name) => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      });
+      sel.value = list.indexOf(prev) >= 0 ? prev : "";
     }
     function collectForm() {
       const phone = normalizeTwMobile(val("ownerPhone"));
@@ -1945,8 +2078,12 @@
           phone: phone || val("ownerPhone"),
           phoneE164: toE164(phone),
           email: val("ownerEmail"),
+          lineName: val("lineName"),
           idNo: val("ownerId").toUpperCase(),
-          address: val("ownerAddress"),
+          city: val("addrCity"),
+          district: val("addrDistrict"),
+          street: val("addrStreet"),
+          address: composeAddress(),
           emergencyName: val("emergencyName"),
           emergencyPhone: digitsOnly(val("emergencyPhone")).slice(0, 10),
           medicalAuth: medicalAuth()
@@ -1961,19 +2098,25 @@
     function restoreDraft() {
       try {
         const raw = sessionStorage.getItem(DRAFT_KEY);
-        if (!raw) { if (!petCards().length) addPet(); return; }
+        if (!raw) { fillCitySelect(); if (!petCards().length) addPet(); return; }
         const data = JSON.parse(raw);
         const o = data.owner || {};
         fill("ownerName", o.name);
         fill("ownerPhone", o.phone);
         fill("ownerEmail", o.email);
+        fill("lineName", o.lineName);
         fill("ownerId", o.idNo);
-        fill("ownerAddress", o.address);
+        fill("addrStreet", o.street || "");
         fill("emergencyName", o.emergencyName);
         fill("emergencyPhone", o.emergencyPhone);
         if (o.medicalAuth) {
           const r = document.querySelector("input[name=medicalAuth][value=\"" + o.medicalAuth + "\"]");
           if (r) r.checked = true;
+        }
+        fillCitySelect();
+        if (o.city) {
+          fill("addrCity", o.city);
+          fillDistrictSelect(o.district || "");
         }
         (data.pets && data.pets.length ? data.pets.slice(0, MAX_PETS) : [{}]).forEach((p) => addPet(p));
         if (!petCards().length) addPet();
@@ -1994,6 +2137,12 @@
         const other = card.querySelector("[data-k=breedOther]");
         list.push({ key: other && other.id, msg: "請填寫其他品種", el: other });
       }
+      const guardEl = card.querySelector("input[data-k=guardFood]");
+      if (!cardRadio(card, "guardFood")) list.push({ key: guardEl && guardEl.name, msg: "請選擇是否護食或護玩具", el: guardEl });
+      const socialEl = card.querySelector("input[data-k=withPets]");
+      if (!cardRadio(card, "withPets")) list.push({ key: socialEl && socialEl.name, msg: "請選擇對人或其他毛孩的狀況", el: socialEl });
+      const anxietyEl = card.querySelector("input[data-k=anxiety]");
+      if (!cardRadio(card, "anxiety")) list.push({ key: anxietyEl && anxietyEl.name, msg: "請選擇分離焦慮狀況", el: anxietyEl });
       return list;
     }
     function step1Issues() {
@@ -2004,8 +2153,13 @@
       const mail = val("ownerEmail");
       if (!emailOk(mail)) add("ownerEmail", false, "請填寫有效的電子信箱");
       else { const typo = emailTypoMsg(mail); if (typo) add("ownerEmail", false, typo); }
-      add("ownerId", twIdOk(val("ownerId")), "請填寫正確的身分證字號");
-      add("ownerAddress", val("ownerAddress").trim().length >= 4, "請填寫居住地址");
+      const line = val("lineName");
+      if (!line) add("lineName", false, "請填寫 LINE 名稱");
+      else if (line.charAt(0) === "@") add("lineName", false, "這是 LINE ID，請填顯示名稱");
+      add("ownerId", twIdOk(val("ownerId")), "請填 1 位英文大寫加 9 位數字的身分證字號");
+      add("addrCity", !!val("addrCity"), "請選擇縣市");
+      add("addrDistrict", !!val("addrDistrict"), "請選擇區域");
+      add("addrStreet", val("addrStreet").trim().length >= 2, "請填寫路段巷弄門牌");
       add("emergencyName", val("emergencyName").trim().length >= 2, "請填寫緊急聯絡人");
       add("emergencyPhone", /^\d{10}$/.test(digitsOnly(val("emergencyPhone"))), "請填寫 10 碼緊急聯絡人電話");
       add("medicalAuth", !!medicalAuth(), "請選擇緊急醫療授權方式");
@@ -2186,10 +2340,15 @@
         ["委託人（乙方）", o.name || "—"],
         ["連絡電話", phone],
         ["電子信箱", o.email || "—"],
+        ["LINE 名稱", o.lineName || "—"],
         ["身分證字號", o.idNo || "—"],
         ["居住地址", o.address || "—"],
         ["緊急聯絡人", (o.emergencyName || "—") + "　" + ePhone],
         ["本契約寵物", pets],
+        ["行為注意", (form.pets || []).map((p) => {
+          if (!p.name) return "";
+          return p.name + "：護食" + (p.guardFood || "未填") + "、對其他毛孩" + (p.withPets || "未填") + "、分離焦慮" + (p.anxiety || "未填") + (p.behaviorNote ? "；" + p.behaviorNote : "");
+        }).filter(Boolean).join(" ／ ") || "—"],
         ["緊急醫療授權", o.medicalAuth || "—"]
       ];
       kv.innerHTML = rows.map(([k, v]) => "<div><dt>" + escHtml(k) + "</dt><dd>" + escHtml(v) + "</dd></div>").join("");
@@ -2457,8 +2616,17 @@
       if (e.target.value !== next) e.target.value = next;
     });
     document.getElementById("ownerId").addEventListener("input", (e) => {
-      e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
+      let out = "";
+      const raw = String(e.target.value || "").toUpperCase();
+      for (let i = 0; i < raw.length; i += 1) {
+        const ch = raw[i];
+        if (!out) { if (/[A-Z]/.test(ch)) out = ch; }
+        else if (/\d/.test(ch) && out.length < 10) out += ch;
+      }
+      e.target.value = out;
     });
+    fillCitySelect();
+    document.getElementById("addrCity").addEventListener("change", () => fillDistrictSelect(""));
     document.getElementById("otp").addEventListener("input", (e) => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6); });
     document.getElementById("park-form").addEventListener("change", saveDraft);
     document.getElementById("park-form").addEventListener("input", () => {
