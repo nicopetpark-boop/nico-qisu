@@ -522,8 +522,24 @@
       box-shadow: inset 0 0 0 1.5px var(--cocoa), 0 0 0 3px rgba(79, 163, 209, 0.28);
       background-color: #fff;
     }
-    input.is-invalid, textarea.is-invalid {
-      box-shadow: inset 0 0 0 1.5px var(--danger);
+    input.is-invalid, textarea.is-invalid, select.is-invalid {
+      box-shadow: inset 0 0 0 2px var(--danger);
+      background: color-mix(in srgb, var(--danger) 8%, #fff);
+    }
+    .field.is-need, fieldset.field.is-need {
+      border-radius: 16px;
+      padding: 8px;
+      background: color-mix(in srgb, var(--danger) 8%, var(--paper));
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 45%, transparent);
+      animation: needPulse 1s ease-in-out 2;
+    }
+    @keyframes needPulse {
+      0%, 100% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 45%, transparent); }
+      50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--danger) 18%, transparent); }
+    }
+    .agree.is-need, .sign-frame.is-need {
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 45%, transparent);
+      animation: needPulse 1s ease-in-out 2;
     }
     .suffix {
       position: relative;
@@ -874,13 +890,13 @@
     .summary dt { color: var(--muted); }
     .summary dd { margin: 0; font-weight: 600; color: var(--cocoa-deep); }
 
-    .addr-grid {
+    .meal-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 12px;
     }
     @media (min-width: 480px) {
-      .addr-grid { grid-template-columns: 1fr 1fr; }
+      .meal-grid { grid-template-columns: 1fr 1fr 1fr; }
     }
 
     .otp-input {
@@ -901,11 +917,14 @@
       padding: 4px 0 max(20px, env(safe-area-inset-bottom));
     }
     .need-count {
-      margin: 0;
+      margin: 0 0 8px;
       text-align: center;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--cocoa-deep);
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #7A3E32;
+      background: color-mix(in srgb, var(--danger) 12%, var(--paper));
+      padding: 10px 12px;
+      border-radius: 12px;
     }
     .submit-wait {
       margin: 0;
@@ -955,12 +974,14 @@
       color: var(--muted);
     }
     .cf-box iframe, .cf-box .cf-turnstile { max-width: 100%; }
-    #step-1, #step-2, #step-3 {
+    #step-1, #step-2, #step-3, #step-4 {
       padding-bottom: 0;
     }
     #pets-root,
+    #care-root,
     #step-2 > .card,
-    #step-3 > .card {
+    #step-3 > .card,
+    #step-4 > .card {
       margin-bottom: 4px;
     }
     input, select, textarea, .choice, .agree {
@@ -1142,6 +1163,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+      .field.is-need, fieldset.field.is-need, .agree.is-need, .sign-frame.is-need { animation: none; }
       html { scroll-behavior: auto; }
       .panel { animation: none; }
       .btn { transition: none; }
@@ -1450,9 +1472,10 @@
       </div>
     </header>
     <ol class="progress" aria-label="填寫進度">
-      <li class="is-current" data-step-tab="1"><span class="num">1</span><span>閱讀並簽署</span></li>
-      <li data-step-tab="2"><span class="num">2</span><span>委託人資料</span></li>
-      <li data-step-tab="3"><span class="num">3</span><span>預覽契約</span></li>
+      <li class="is-current" data-step-tab="1"><span class="num">1</span><span>簽署</span></li>
+      <li data-step-tab="2"><span class="num">2</span><span>資料</span></li>
+      <li data-step-tab="3"><span class="num">3</span><span>照護</span></li>
+      <li data-step-tab="4"><span class="num">4</span><span>預覽</span></li>
     </ol>
     <p class="sr-only" id="live" aria-live="polite"></p>
 
@@ -1544,7 +1567,7 @@
         </div>
         <div class="actions">
           <p class="need-count" id="need-count" hidden></p>
-          <button type="button" class="btn btn-primary" id="to-step-3">下一步：預覽契約</button>
+          <button type="button" class="btn btn-primary" id="to-step-3">下一步：住宿資訊</button>
           <button type="button" class="btn btn-back" id="back-1">返回</button>
         </div>
       </section>
@@ -1646,9 +1669,24 @@
       <section class="panel" id="step-3" data-panel="3" hidden>
         <article class="card">
           <span class="card-kicker">Step 03</span>
+          <h2 tabindex="-1">住宿毛孩資訊</h2>
+          <p class="lede">契約填寫完成後，請再提供每隻毛孩的日常照護，入住當日將依此執行。</p>
+          <div id="banner-3"></div>
+        </article>
+        <div id="care-root"></div>
+        <div class="actions">
+          <p class="need-count" id="need-count-care" hidden></p>
+          <button type="button" class="btn btn-primary" id="to-step-4">下一步：預覽契約</button>
+          <button type="button" class="btn btn-back" id="back-care">返回</button>
+        </div>
+      </section>
+
+      <section class="panel" id="step-4" data-panel="4" hidden>
+        <article class="card">
+          <span class="card-kicker">Step 04</span>
           <h2 tabindex="-1">預覽寵物寄宿安親契約書</h2>
           <p class="lede">請再次核對您填寫的資料與契約全文。確認無誤並勾選同意後，才進行電子郵件驗證。</p>
-          <div id="banner-3"></div>
+          <div id="banner-4"></div>
           <div class="preview-doc" id="contract-preview" tabindex="0">
             <div class="preview-kv" id="preview-kv"></div>
             <div id="contract-preview-body"></div>
@@ -1715,6 +1753,71 @@
       　LINE　<a href="https://lin.ee/01Rj2ph" target="_blank" rel="noopener noreferrer">@niconicopet</a>
     </footer>
   </div>
+
+  <template id="care-card-tpl">
+    <article class="card" data-care="__ID__">
+      <div class="pet-head">
+        <div>
+          <span class="card-kicker">Care</span>
+          <h2><span data-care-name></span> 的住宿資訊</h2>
+          <p class="lede">沒有的項目請填「無」。</p>
+        </div>
+      </div>
+      <div class="stack">
+        <fieldset class="field">
+          <legend>飲食習慣 <span class="req">必填</span></legend>
+          <div class="meal-grid">
+            <div class="field">
+              <label for="c__ID___mealMorning">早</label>
+              <input id="c__ID___mealMorning" data-k="mealMorning" type="text" maxlength="80" placeholder="例如：飼料半碗" />
+              <p class="error" data-err="c__ID___mealMorning"></p>
+            </div>
+            <div class="field">
+              <label for="c__ID___mealNoon">中</label>
+              <input id="c__ID___mealNoon" data-k="mealNoon" type="text" maxlength="80" placeholder="例如：不吃" />
+              <p class="error" data-err="c__ID___mealNoon"></p>
+            </div>
+            <div class="field">
+              <label for="c__ID___mealNight">晚</label>
+              <input id="c__ID___mealNight" data-k="mealNight" type="text" maxlength="80" placeholder="例如：鮮食一餐" />
+              <p class="error" data-err="c__ID___mealNight"></p>
+            </div>
+          </div>
+        </fieldset>
+        <div class="field">
+          <label for="c__ID___allergen">過敏原 <span class="req">必填</span></label>
+          <input id="c__ID___allergen" data-k="allergen" type="text" maxlength="80" placeholder="沒有請填無" />
+          <p class="error" data-err="c__ID___allergen"></p>
+        </div>
+        <div class="field">
+          <label for="c__ID___chronic">痼疾 <span class="req">必填</span></label>
+          <input id="c__ID___chronic" data-k="chronic" type="text" maxlength="80" placeholder="沒有請填無" />
+          <p class="error" data-err="c__ID___chronic"></p>
+        </div>
+        <div class="field">
+          <label for="c__ID___medicine">餵藥 <span class="req">必填</span></label>
+          <input id="c__ID___medicine" data-k="medicine" type="text" maxlength="80" placeholder="藥名與時間，沒有請填無" />
+          <p class="error" data-err="c__ID___medicine"></p>
+        </div>
+        <fieldset class="field">
+          <legend>散步可否去草叢 <span class="req">必填</span></legend>
+          <div class="chips duo">
+            <label class="choice"><input type="radio" name="c__ID___grass" data-k="grassWalk" value="可以" /> 可以</label>
+            <label class="choice"><input type="radio" name="c__ID___grass" data-k="grassWalk" value="不可以" /> 不可以</label>
+          </div>
+          <p class="error" data-err="c__ID___grass"></p>
+        </fieldset>
+        <fieldset class="field">
+          <legend>是否定期投藥 <span class="req">必填</span></legend>
+          <div class="chips duo">
+            <label class="choice"><input type="radio" name="c__ID___regular" data-k="regularMed" value="是" /> 是</label>
+            <label class="choice"><input type="radio" name="c__ID___regular" data-k="regularMed" value="否" /> 否</label>
+          </div>
+          <p class="error" data-err="c__ID___regular"></p>
+        </fieldset>
+      </div>
+    </article>
+  </template>
 
   <template id="pet-card-tpl">
     <article class="card pet-card" data-pet>
@@ -1790,7 +1893,7 @@
   (function () {
     const GAS_WEB_APP_URL = "";
     const TURNSTILE_SITE_KEY = "";
-    const DRAFT_KEY = "nico-qisu-draft-v2";
+    const DRAFT_KEY = "nico-qisu-draft-v3";
     const MAX_PETS = 3;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const BREEDS = {
@@ -1826,6 +1929,7 @@
     let current = 1;
     let pad = null;
     let petSeq = 0;
+    let petCareStore = {};
     let termsRead = false;
     let otpLeft = 0;
     let otpTimer = null;
@@ -1854,6 +1958,7 @@
       const root = document.getElementById(scope) || document;
       $$(".error", root).forEach((el) => { el.textContent = ""; });
       $$(".is-invalid", root).forEach((el) => el.classList.remove("is-invalid"));
+      $$(".is-need", root).forEach((el) => el.classList.remove("is-need"));
       const b = document.getElementById("banner-" + (scope || "").replace("step-", ""));
       if (b) b.innerHTML = "";
     }
@@ -2000,10 +2105,13 @@
       const wrap = document.createElement("div");
       wrap.innerHTML = tpl.innerHTML.replace(/__IDX__/g, String(idx));
       const card = wrap.firstElementChild;
+      card.setAttribute("data-pet-id", String(idx));
       document.getElementById("pets-root").appendChild(card);
       bindPetCard(card);
-      if (data) fillPet(card, data);
-      else fillBreedOptions(card);
+      if (data) {
+        fillPet(card, data);
+        petCareStore[String(idx)] = data;
+      } else fillBreedOptions(card);
       refreshPetChrome();
       return card;
     }
@@ -2020,7 +2128,54 @@
       cardSet(card, "anxiety", d.anxiety || "");
       cardSet(card, "behaviorNote", d.behaviorNote || "");
     }
-    function collectPet(card) {
+    function collectCareFrom(card) {
+      if (!card) return {};
+      return {
+        mealMorning: cardVal(card, "mealMorning"),
+        mealNoon: cardVal(card, "mealNoon"),
+        mealNight: cardVal(card, "mealNight"),
+        allergen: cardVal(card, "allergen"),
+        chronic: cardVal(card, "chronic"),
+        medicine: cardVal(card, "medicine"),
+        grassWalk: cardRadio(card, "grassWalk"),
+        regularMed: cardRadio(card, "regularMed")
+      };
+    }
+    function fillCare(card, data) {
+      const d = data || {};
+      cardSet(card, "mealMorning", d.mealMorning || "");
+      cardSet(card, "mealNoon", d.mealNoon || "");
+      cardSet(card, "mealNight", d.mealNight || "");
+      cardSet(card, "allergen", d.allergen || "");
+      cardSet(card, "chronic", d.chronic || "");
+      cardSet(card, "medicine", d.medicine || "");
+      cardSet(card, "grassWalk", d.grassWalk || "");
+      cardSet(card, "regularMed", d.regularMed || "");
+    }
+    function renderCareCards() {
+      const root = document.getElementById("care-root");
+      const tpl = document.getElementById("care-card-tpl");
+      if (!root || !tpl) return;
+      const saved = {};
+      $$("[data-care]", root).forEach((c) => { saved[c.getAttribute("data-care")] = collectCareFrom(c); });
+      petCards().forEach((petCard) => {
+        const id = petCard.getAttribute("data-pet-id");
+        const fromPet = collectPetLite(petCard);
+        if (id && !saved[id]) saved[id] = fromPet;
+      });
+      root.innerHTML = "";
+      petCards().forEach((petCard, i) => {
+        const id = petCard.getAttribute("data-pet-id") || String(i);
+        const wrap = document.createElement("div");
+        wrap.innerHTML = tpl.innerHTML.replace(/__ID__/g, id);
+        const care = wrap.firstElementChild;
+        const nameEl = care.querySelector("[data-care-name]");
+        if (nameEl) nameEl.textContent = cardVal(petCard, "name") || ("毛孩 " + (i + 1));
+        fillCare(care, saved[id] || petCareStore[id] || {});
+        root.appendChild(care);
+      });
+    }
+    function collectPetLite(card) {
       return {
         name: cardVal(card, "name"),
         species: cardRadio(card, "species"),
@@ -2033,6 +2188,13 @@
         anxiety: cardRadio(card, "anxiety"),
         behaviorNote: cardVal(card, "behaviorNote")
       };
+    }
+    function collectPet(card) {
+      const id = card.getAttribute("data-pet-id");
+      const live = collectCareFrom(document.querySelector("#care-root [data-care=\"" + id + "\"]"));
+      const row = Object.assign({ id: id }, collectPetLite(card), petCareStore[id] || {}, live);
+      petCareStore[id] = row;
+      return row;
     }
 
     function composeAddress() {
@@ -2167,10 +2329,31 @@
       if (!petCards().length) list.push({ key: "add-pet", msg: "請至少登記一隻毛孩", el: document.getElementById("add-pet") });
       return list;
     }
-    function paintIssue(issue) {
-      if (!issue) return;
-      setErr(issue.key, issue.msg);
-      if (issue.el) issue.el.classList.add("is-invalid");
+    function markNeed(el) {
+      if (!el) return;
+      el.classList.add("is-invalid");
+      const wrap = el.closest("fieldset.field, .field, .agree, .sign-frame") || el;
+      wrap.classList.add("is-need");
+      const fold = el.closest && el.closest("details.fold");
+      if (fold) fold.open = true;
+    }
+    function paintIssues(list) {
+      (list || []).forEach((issue, i) => {
+        if (!issue) return;
+        if (i === 0) setErr(issue.key, issue.msg);
+        markNeed(issue.el);
+      });
+    }
+    function jumpToIssue(issue) {
+      const el = issue && issue.el;
+      const target = (el && (el.closest(".is-need") || el)) || document.querySelector(".is-need, .is-invalid");
+      if (!target) return;
+      target.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+      window.setTimeout(() => {
+        const focusEl = (el && typeof el.focus === "function") ? el : target.querySelector("input, select, textarea, button");
+        if (!focusEl || !focusEl.focus) return;
+        try { focusEl.focus({ preventScroll: true }); } catch (e) { try { focusEl.focus(); } catch (err) {} }
+      }, 280);
     }
     function updateNeedCount(n) {
       const el = document.getElementById("need-count");
@@ -2184,8 +2367,37 @@
       updateNeedCount(list.length);
       if (!list.length) return true;
       showBanner(2, "尚有 " + list.length + " 個必填項目");
-      paintIssue(list[0]);
-      firstErrorFocus("step-2");
+      paintIssues(list);
+      jumpToIssue(list[0]);
+      return false;
+    }
+    function validateCare() {
+      clearErrors("step-3");
+      const list = [];
+      $$("[data-care]", document.getElementById("care-root")).forEach((card) => {
+        const need = (k, msg, radio) => {
+          const el = radio ? card.querySelector("input[data-k=\"" + k + "\"]") : card.querySelector("[data-k=\"" + k + "\"]");
+          const ok = radio ? !!cardRadio(card, k) : !!cardVal(card, k);
+          if (!ok) list.push({ key: el && (el.id || el.name), msg: msg, el: el });
+        };
+        need("mealMorning", "請填寫早餐");
+        need("mealNoon", "請填寫午餐");
+        need("mealNight", "請填寫晚餐");
+        need("allergen", "請填寫過敏原，沒有請填無");
+        need("chronic", "請填寫痼疾，沒有請填無");
+        need("medicine", "請填寫餵藥，沒有請填無");
+        need("grassWalk", "請選擇散步可否去草叢", true);
+        need("regularMed", "請選擇是否定期投藥", true);
+      });
+      const el = document.getElementById("need-count-care");
+      if (el) {
+        if (list.length) { el.hidden = false; el.textContent = "尚有 " + list.length + " 個必填項目"; }
+        else el.hidden = true;
+      }
+      if (!list.length) return true;
+      showBanner(3, "尚有 " + list.length + " 個必填項目");
+      paintIssues(list);
+      jumpToIssue(list[0]);
       return false;
     }
     function signatureReady() { return pad && !pad.isEmpty(); }
@@ -2277,15 +2489,22 @@
       }
       if (!$("#agreeTerms").checked) {
         setErr("agreeTerms", "請勾選同意採用電子文件與手寫電子簽章");
-        document.getElementById("agree-label").scrollIntoView({ block: "center" });
+        markNeed(document.getElementById("agree-label"));
+        jumpToIssue({ el: document.getElementById("agreeTerms") });
         return false;
       }
       if (!$("#agreePhoto").checked) {
         setErr("agreePhoto", "請勾選同意本館拍攝及使用毛孩影像");
-        document.getElementById("agree-photo-label").scrollIntoView({ block: "center" });
+        markNeed(document.getElementById("agree-photo-label"));
+        jumpToIssue({ el: document.getElementById("agreePhoto") });
         return false;
       }
-      if (!signatureReady()) { setErr("signature", "請在簽名框內手寫簽名"); return false; }
+      if (!signatureReady()) {
+        setErr("signature", "請在簽名框內手寫簽名");
+        markNeed(document.querySelector(".sign-frame"));
+        jumpToIssue({ el: document.getElementById("signature") });
+        return false;
+      }
       return true;
     }
     function validateOtp() {
@@ -2349,6 +2568,10 @@
           if (!p.name) return "";
           return p.name + "：護食" + (p.guardFood || "未填") + "、對其他毛孩" + (p.withPets || "未填") + "、分離焦慮" + (p.anxiety || "未填") + (p.behaviorNote ? "；" + p.behaviorNote : "");
         }).filter(Boolean).join(" ／ ") || "—"],
+        ["住宿照護", (form.pets || []).map((p) => {
+          if (!p.name) return "";
+          return p.name + "：早" + (p.mealMorning || "未填") + "、中" + (p.mealNoon || "未填") + "、晚" + (p.mealNight || "未填") + "；過敏原" + (p.allergen || "未填") + "；痼疾" + (p.chronic || "未填") + "；餵藥" + (p.medicine || "未填") + "；草叢" + (p.grassWalk || "未填") + "；定期投藥" + (p.regularMed || "未填");
+        }).filter(Boolean).join(" ／ ") || "—"],
         ["緊急醫療授權", o.medicalAuth || "—"]
       ];
       kv.innerHTML = rows.map(([k, v]) => "<div><dt>" + escHtml(k) + "</dt><dd>" + escHtml(v) + "</dd></div>").join("");
@@ -2407,7 +2630,8 @@
         li.classList.toggle("is-done", s < n);
       });
       if (n === 1) { initPad(); watchTerms(); }
-      if (n === 3) fillContractPreview();
+      if (n === 3) renderCareCards();
+      if (n === 4) fillContractPreview();
       window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
     }
     function deviceInfo() {
@@ -2452,13 +2676,14 @@
         return;
       }
       if (!validateStep1()) { showPanel(2); return; }
+      if (!validateCare()) { showPanel(3); return; }
       const email = val("ownerEmail");
       try {
         await callGas({ action: "sendOtp", formType: "boarding", email: email, owner: collectForm().owner });
         startOtpCount();
-        showBanner(3, "驗證碼已寄到 " + email + "，請於 10 分鐘內輸入。", "ok");
+        showBanner(4, "驗證碼已寄到 " + email + "，請於 10 分鐘內輸入。", "ok");
       } catch (err) {
-        showBanner(3, err.message || "驗證碼發送失敗，請稍後再試。");
+        showBanner(4, err.message || "驗證碼發送失敗，請稍後再試。");
       }
     }
     function stopSubmitWait() {
@@ -2488,15 +2713,16 @@
     }
     async function submitAll() {
       if (submitting) return;
-      clearErrors("step-3");
+      clearErrors("step-4");
       if (!validateStep2()) { showPanel(1); return; }
       if (!validateStep1()) { showPanel(2); return; }
+      if (!validateCare()) { showPanel(3); return; }
       if (!previewAgreed()) {
         setErr("agreePreview", "請先確認契約預覽並勾選同意");
         document.getElementById("agree-preview-label").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
         return;
       }
-      if (!validateOtp()) { firstErrorFocus("step-3"); return; }
+      if (!validateOtp()) { firstErrorFocus("step-4"); return; }
       submitting = true;
       const btn = document.getElementById("submit-form");
       btn.disabled = true;
@@ -2519,7 +2745,7 @@
         showSuccess({ caseId, pdfUrl, message: data.message });
         try { sessionStorage.removeItem(DRAFT_KEY); } catch (e) {}
       } catch (err) {
-        showBanner(3, err.message || "送出失敗，請稍後再試。");
+        showBanner(4, err.message || "送出失敗，請稍後再試。");
       } finally {
         submitting = false;
         stopSubmitWait();
@@ -2565,8 +2791,10 @@
     watchTerms();
     document.getElementById("to-step-2").addEventListener("click", () => { if (validateStep2()) { saveDraft(); showPanel(2); } });
     document.getElementById("to-step-3").addEventListener("click", () => { if (validateStep1()) { saveDraft(); showPanel(3); } });
+    document.getElementById("to-step-4").addEventListener("click", () => { if (validateCare()) { saveDraft(); showPanel(4); } });
     document.getElementById("back-1").addEventListener("click", () => showPanel(1));
-    document.getElementById("back-2").addEventListener("click", () => showPanel(2));
+    document.getElementById("back-care").addEventListener("click", () => showPanel(2));
+    document.getElementById("back-2").addEventListener("click", () => showPanel(3));
     document.getElementById("agreePreview").addEventListener("change", gateEmailVerify);
     const termsDone = document.getElementById("terms-done");
     if (termsDone) termsDone.addEventListener("click", unlockAgree);
