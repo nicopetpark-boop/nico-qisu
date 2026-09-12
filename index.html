@@ -623,10 +623,12 @@
     }
 
     .terms {
-      max-height: min(52vh, 360px);
+      max-height: min(62vh, 480px);
       overflow: auto;
+      -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
-      padding: 14px 14px 18px;
+      touch-action: pan-y;
+      padding: 14px 14px 22px;
       border-radius: var(--radius-lg);
       background: var(--warm);
       box-shadow: inset 0 0 0 1px rgba(138, 83, 64, 0.07);
@@ -650,7 +652,96 @@
       margin: 0 0 10px;
       text-wrap: balance;
     }
+    .preview-doc {
+      max-height: min(68vh, 720px);
+      overflow: auto;
+      overscroll-behavior: contain;
+      padding: 16px 14px 20px;
+      border-radius: var(--radius-lg);
+      background: #FFFCF8;
+      box-shadow: inset 0 0 0 1px rgba(138, 83, 64, 0.1);
+      font-size: 0.86rem;
+      color: var(--ink);
+      line-height: 1.7;
+    }
+    .preview-doc h3 {
+      margin: 18px 0 8px;
+      font-size: 0.92rem;
+      color: var(--cocoa-deep);
+      letter-spacing: 0.04em;
+    }
+    .preview-doc p, .preview-doc li { margin: 0 0 8px; }
+    .preview-doc ol, .preview-doc ul { padding-left: 1.2em; margin: 0 0 8px; }
+    .preview-kv {
+      display: grid;
+      gap: 10px;
+      margin: 0 0 16px;
+      padding: 12px 12px 10px;
+      border-radius: 14px;
+      background: var(--warm);
+      box-shadow: inset 0 0 0 1px rgba(138, 83, 64, 0.08);
+    }
+    .preview-kv div {
+      display: grid;
+      gap: 2px;
+    }
+    .preview-kv dt {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .preview-kv dd {
+      margin: 0;
+      font-weight: 700;
+      color: var(--cocoa-deep);
+      word-break: break-word;
+    }
+    .preview-note {
+      margin: 12px 0 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--oat) 18%, #fff);
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--cocoa-deep);
+    }
+    .preview-sign {
+      margin-top: 14px;
+      padding: 10px;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: inset 0 0 0 1px rgba(138, 83, 64, 0.08);
+    }
+    .preview-sign p {
+      margin: 0 0 6px;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .preview-sign img {
+      display: block;
+      width: 100%;
+      max-height: 120px;
+      object-fit: contain;
+      background: #FFF8F3;
+      border-radius: 10px;
+    }
+    #email-verify {
+      margin-top: 8px;
+    }
 
+    .terms-end {
+      margin: 18px 0 10px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--oat-soft);
+      text-align: center;
+      font-weight: 700;
+      color: var(--cocoa-deep);
+    }
+    .terms-done {
+      width: 100%;
+      margin: 0 0 4px;
+    }
     .agree {
       display: flex;
       align-items: flex-start;
@@ -661,6 +752,7 @@
       border-radius: var(--radius-md);
       background: color-mix(in srgb, var(--oat) 16%, var(--paper));
       box-shadow: inset 0 0 0 1.5px var(--cocoa);
+      cursor: pointer;
     }
     .agree input {
       margin-top: 4px;
@@ -796,12 +888,8 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin-top: 12px;
-      position: sticky;
-      bottom: 0;
-      z-index: 4;
-      padding: 8px 0 max(8px, env(safe-area-inset-bottom));
-      background: linear-gradient(180deg, transparent 0%, var(--page) 28%);
+      margin-top: 16px;
+      padding: 4px 0 max(20px, env(safe-area-inset-bottom));
     }
     .need-count {
       margin: 0;
@@ -1355,7 +1443,7 @@
     <ol class="progress" aria-label="填寫進度">
       <li class="is-current" data-step-tab="1"><span class="num">1</span><span>閱讀並簽署</span></li>
       <li data-step-tab="2"><span class="num">2</span><span>委託人資料</span></li>
-      <li data-step-tab="3"><span class="num">3</span><span>電子郵件認證</span></li>
+      <li data-step-tab="3"><span class="num">3</span><span>預覽契約</span></li>
     </ol>
     <p class="sr-only" id="live" aria-live="polite"></p>
 
@@ -1422,7 +1510,7 @@
         </div>
         <div class="actions">
           <p class="need-count" id="need-count" hidden></p>
-          <button type="button" class="btn btn-primary" id="to-step-3">下一步：電子郵件認證</button>
+          <button type="button" class="btn btn-primary" id="to-step-3">下一步：預覽契約</button>
           <button type="button" class="btn btn-back" id="back-1">返回</button>
         </div>
       </section>
@@ -1476,18 +1564,20 @@
             </ol>
             <p>本契約一式兩份，並請以方提供身分證影本為登記入住時之用。</p>
             <ul>
-              <li>受託人(甲方)： NicoNico寵物精緻美容&旅館</li>
-              <li>代表人： 李易曄</li>
-              <li>統一編號： 98648994</li>
-              <li>營業地址： 台中市北屯區敦富五街37號</li>
-              <li>委託人(乙方)： 以本表填寫之委託人為準</li>
-              <li>連絡電話： 以本表填寫為準</li>
-              <li>緊急聯絡人： 以本表填寫為準</li>
-              <li>緊急連絡人電話： 以本表填寫為準</li>
-              <li>身分證字號： 以本表填寫為準</li>
-              <li>居住地址： 以本表填寫為準</li>
+              <li data-party="partyA">受託人(甲方)： NicoNico寵物精緻美容&旅館</li>
+              <li data-party="rep">代表人： 李易曄</li>
+              <li data-party="tax">統一編號： 98648994</li>
+              <li data-party="shopAddr">營業地址： 台中市北屯區敦富五街37號</li>
+              <li data-party="ownerName">委託人(乙方)： 以本表填寫之委託人為準</li>
+              <li data-party="phone">連絡電話： 以本表填寫為準</li>
+              <li data-party="emergencyName">緊急聯絡人： 以本表填寫為準</li>
+              <li data-party="emergencyPhone">緊急連絡人電話： 以本表填寫為準</li>
+              <li data-party="idNo">身分證字號： 以本表填寫為準</li>
+              <li data-party="address">居住地址： 以本表填寫為準</li>
             </ul>
             <p class="contract-date" id="contract-date"></p>
+            <p class="terms-end" id="terms-end">—— 契約全文結束 ——</p>
+            <button type="button" class="btn btn-ghost terms-done" id="terms-done">我已閱讀至結尾，解鎖勾選</button>
           </div>
           <p class="terms-read" id="terms-hint">請先滑動閱讀至條款底部，才能勾選同意。</p>
           <label class="agree is-wait" id="agree-label">
@@ -1522,18 +1612,29 @@
       <section class="panel" id="step-3" data-panel="3" hidden>
         <article class="card">
           <span class="card-kicker">Step 03</span>
-          <h2 tabindex="-1">電子郵件認證</h2>
-          <p class="lede">驗證碼會寄到您的電子信箱，用來確認是本人簽署本契約。</p>
+          <h2 tabindex="-1">預覽寵物寄宿安親契約書</h2>
+          <p class="lede">請再次核對您填寫的資料與契約全文。確認無誤並勾選同意後，才進行電子郵件驗證。</p>
           <div id="banner-3"></div>
-          <div class="summary">
-            <div><dt>委託人</dt><dd id="sum-owner">—</dd></div>
-            <div><dt>毛孩</dt><dd id="sum-pet">—</dd></div>
-            <div><dt>連絡電話</dt><dd id="sum-phone">—</dd></div>
-            <div><dt>驗證信箱</dt><dd id="sum-email">—</dd></div>
-            <div><dt>緊急聯絡</dt><dd id="sum-emergency">—</dd></div>
-            <div><dt>緊急醫療</dt><dd id="sum-medical">—</dd></div>
+          <div class="preview-doc" id="contract-preview" tabindex="0">
+            <div class="preview-kv" id="preview-kv"></div>
+            <div id="contract-preview-body"></div>
+            <p class="preview-note" id="preview-medical"></p>
+            <div class="preview-sign">
+              <p>手寫電子簽章</p>
+              <img id="preview-sign-img" alt="手寫簽名" />
+            </div>
           </div>
-          <div class="stack" style="margin-top:16px">
+          <label class="agree" id="agree-preview-label">
+            <input type="checkbox" id="agreePreview" name="agreePreview" />
+            <span>本人已再次審閱完整《寵物寄宿安親契約書》及上列填寫資料，確認無誤，同意依此內容完成簽署。</span>
+          </label>
+          <p class="error" data-err="agreePreview"></p>
+        </article>
+        <article class="card" id="email-verify" hidden>
+          <span class="card-kicker">驗證</span>
+          <h2 tabindex="-1">電子郵件認證</h2>
+          <p class="lede" id="email-verify-lede">驗證碼會寄到您的電子信箱，用來確認是本人簽署本契約。</p>
+          <div class="stack">
             <div class="field">
               <label for="otp">6 位數驗證碼 <span class="req">必填</span></label>
               <input id="otp" name="otp" class="otp-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" placeholder="••••••" />
@@ -1548,7 +1649,7 @@
             <strong id="submit-wait-sec">大約還要 8 秒</strong>
             <span id="submit-wait-msg">正在建立契約，請勿關閉或返回</span>
           </p>
-          <button type="button" class="btn btn-primary" id="submit-form">確認送出契約</button>
+          <button type="button" class="btn btn-primary" id="submit-form" hidden>確認送出契約</button>
           <button type="button" class="btn btn-back" id="back-2">返回</button>
         </div>
       </section>
@@ -1597,6 +1698,26 @@
           <input id="p__IDX___name" data-k="name" type="text" maxlength="40" />
           <p class="error" data-err="p__IDX___name"></p>
         </div>
+        <fieldset class="field">
+          <legend>毛孩是 <span class="req">必填</span></legend>
+          <div class="chips duo">
+            <label class="choice"><input type="radio" name="p__IDX___species" data-k="species" value="狗" /> 狗</label>
+            <label class="choice"><input type="radio" name="p__IDX___species" data-k="species" value="貓" /> 貓</label>
+          </div>
+          <p class="error" data-err="p__IDX___species"></p>
+        </fieldset>
+        <div class="field" data-breed-field hidden>
+          <label for="p__IDX___breed">品種 <span class="req">必填</span></label>
+          <select id="p__IDX___breed" data-k="breed" disabled>
+            <option value="">請先選擇貓或狗</option>
+          </select>
+          <div class="reveal" id="p__IDX___breedOtherWrap" hidden>
+            <label class="sr-only" for="p__IDX___breedOther">其他品種</label>
+            <input id="p__IDX___breedOther" data-k="breedOther" type="text" maxlength="40" placeholder="請填寫品種" />
+            <p class="error" data-err="p__IDX___breedOther"></p>
+          </div>
+          <p class="error" data-err="p__IDX___breed"></p>
+        </div>
       </div>
     </article>
   </template>
@@ -1605,9 +1726,13 @@
   (function () {
     const GAS_WEB_APP_URL = "";
     const TURNSTILE_SITE_KEY = "";
-    const DRAFT_KEY = "nico-qisu-draft-v1";
+    const DRAFT_KEY = "nico-qisu-draft-v2";
     const MAX_PETS = 3;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const BREEDS = {
+      狗: ["米克斯", "瑪爾濟斯", "博美", "貴賓", "玩具貴賓", "迷你貴賓", "比熊", "吉娃娃", "約克夏", "雪納瑞", "法鬥", "柯基", "柴犬", "臘腸", "西施", "巴哥", "黃金獵犬", "拉布拉多", "哈士奇", "邊境牧羊犬"],
+      貓: ["米克斯", "英國短毛", "美國短毛", "波斯", "布偶", "蘇格蘭摺耳", "俄羅斯藍貓"]
+    };
     let current = 1;
     let pad = null;
     let petSeq = 0;
@@ -1698,14 +1823,67 @@
     }
     function petCards() { return $$("[data-pet]", document.getElementById("pets-root")); }
     function cardVal(card, key) {
-      const el = card.querySelector("[data-k=\"" + key + "\"]");
+      const el = card.querySelector("[data-k=\"" + key + "\"]:not([type=radio]):not([type=checkbox])");
       return el ? String(el.value || "").trim() : "";
     }
-    function cardSet(card, key, v) {
-      const el = card.querySelector("[data-k=\"" + key + "\"]");
-      if (el && v != null) el.value = v;
+    function cardRadio(card, key) {
+      const el = card.querySelector("input[data-k=\"" + key + "\"]:checked");
+      return el ? el.value : "";
+    }
+    function cardSet(card, key, values) {
+      const set = new Set(Array.isArray(values) ? values : values ? [values] : []);
+      $$("[data-k=\"" + key + "\"]", card).forEach((el) => {
+        if (el.type === "radio" || el.type === "checkbox") el.checked = set.has(el.value);
+        else if (values != null) el.value = values;
+      });
+    }
+    function fillBreedOptions(card, keepValue) {
+      const species = cardRadio(card, "species");
+      const sel = card.querySelector("[data-k=\"breed\"]");
+      const wrap = card.querySelector("[data-breed-field]");
+      const otherWrap = card.querySelector("[id$=\"_breedOtherWrap\"]");
+      if (!sel) return;
+      const prev = keepValue != null ? String(keepValue) : sel.value;
+      sel.innerHTML = "";
+      const ph = document.createElement("option");
+      ph.value = "";
+      ph.textContent = species ? "請選擇品種" : "請先選擇貓或狗";
+      sel.appendChild(ph);
+      if (!species) {
+        sel.disabled = true;
+        if (wrap) wrap.hidden = true;
+        if (otherWrap) otherWrap.hidden = true;
+        return;
+      }
+      (BREEDS[species] || []).forEach((name) => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      });
+      const other = document.createElement("option");
+      other.value = "其他";
+      other.textContent = "其他";
+      sel.appendChild(other);
+      sel.disabled = false;
+      if (wrap) wrap.hidden = false;
+      const allowed = (BREEDS[species] || []).concat(["其他"]);
+      sel.value = allowed.indexOf(prev) >= 0 ? prev : "";
+      if (otherWrap) otherWrap.hidden = sel.value !== "其他";
     }
     function bindPetCard(card) {
+      $$("input[data-k=\"species\"]", card).forEach((el) => {
+        el.addEventListener("change", () => {
+          fillBreedOptions(card, "");
+          saveDraft();
+        });
+      });
+      const breed = card.querySelector("[data-k=\"breed\"]");
+      if (breed) breed.addEventListener("change", () => {
+        const otherWrap = card.querySelector("[id$=\"_breedOtherWrap\"]");
+        if (otherWrap) otherWrap.hidden = breed.value !== "其他";
+        saveDraft();
+      });
       const rm = card.querySelector("[data-remove-pet]");
       if (rm) rm.addEventListener("click", () => {
         if (petCards().length <= 1) return;
@@ -1734,11 +1912,30 @@
       const card = wrap.firstElementChild;
       document.getElementById("pets-root").appendChild(card);
       bindPetCard(card);
-      if (data && data.name) cardSet(card, "name", data.name);
+      if (data) fillPet(card, data);
+      else fillBreedOptions(card);
       refreshPetChrome();
       return card;
     }
-    function collectPet(card) { return { name: cardVal(card, "name") }; }
+    function fillPet(card, data) {
+      const d = data || {};
+      cardSet(card, "name", d.name || "");
+      cardSet(card, "species", d.species || "");
+      const list = BREEDS[d.species] || [];
+      const pick = d.breedPick || (list.indexOf(d.breed) >= 0 ? d.breed : (d.breed ? "其他" : ""));
+      fillBreedOptions(card, pick);
+      if (pick === "其他") cardSet(card, "breedOther", d.breedOther || d.breed || "");
+    }
+    function collectPet(card) {
+      return {
+        name: cardVal(card, "name"),
+        species: cardRadio(card, "species"),
+        gender: "",
+        breed: cardVal(card, "breed") === "其他" ? cardVal(card, "breedOther") : cardVal(card, "breed"),
+        breedPick: cardVal(card, "breed"),
+        breedOther: cardVal(card, "breedOther")
+      };
+    }
     function collectForm() {
       const phone = normalizeTwMobile(val("ownerPhone"));
       const pets = petCards().map(collectPet);
@@ -1783,9 +1980,21 @@
       } catch (e) { if (!petCards().length) addPet(); }
     }
     function petIssueList(card) {
-      const el = card.querySelector("[data-k=name]");
-      if (cardVal(card, "name").length >= 1) return [];
-      return [{ key: el && el.id, msg: "請填寫毛孩名字", el: el }];
+      const list = [];
+      const nameEl = card.querySelector("[data-k=name]");
+      if (!cardVal(card, "name")) list.push({ key: nameEl && nameEl.id, msg: "請填寫毛孩名字", el: nameEl });
+      const speciesEl = card.querySelector("input[data-k=species]");
+      if (!cardRadio(card, "species")) {
+        list.push({ key: speciesEl && speciesEl.name, msg: "請選擇貓或狗", el: speciesEl });
+      }
+      const breedEl = card.querySelector("[data-k=breed]");
+      const pick = cardVal(card, "breed");
+      if (!pick) list.push({ key: breedEl && breedEl.id, msg: "請選擇品種", el: breedEl });
+      else if (pick === "其他" && !cardVal(card, "breedOther")) {
+        const other = card.querySelector("[data-k=breedOther]");
+        list.push({ key: other && other.id, msg: "請填寫其他品種", el: other });
+      }
+      return list;
     }
     function step1Issues() {
       const list = [];
@@ -1872,6 +2081,26 @@
       }
       resizePad();
     }
+    function watchTerms() {
+      const box = document.getElementById("terms-box");
+      const end = document.getElementById("terms-end");
+      if (!box) return;
+      const check = () => {
+        if (termsRead) return;
+        const max = box.scrollHeight - box.clientHeight;
+        if (max > 12 && box.scrollTop >= max - 140) unlockAgree();
+      };
+      box.addEventListener("scroll", check, { passive: true });
+      box.addEventListener("touchend", check, { passive: true });
+      if (end && "IntersectionObserver" in window) {
+        const io = new IntersectionObserver((entries) => {
+          if (entries.some((e) => e.isIntersecting)) unlockAgree();
+        }, { root: box, threshold: 0.01, rootMargin: "0px 0px 80px 0px" });
+        io.observe(end);
+      }
+      window.setTimeout(check, 200);
+      window.setTimeout(check, 800);
+    }
     function unlockAgree() {
       termsRead = true;
       const lab = document.getElementById("agree-label");
@@ -1883,23 +2112,25 @@
       if (photoLab) photoLab.classList.remove("is-wait");
       if (photo) photo.disabled = false;
       const hint = document.getElementById("terms-hint");
-      if (hint) hint.textContent = "已閱讀條款，請勾選同意並簽名。";
-    }
-    function watchTerms() {
-      const box = document.getElementById("terms-box");
-      if (!box) return;
-      const check = () => {
-        if (termsRead) return;
-        if (box.scrollHeight - box.clientHeight - box.scrollTop < 24) unlockAgree();
-      };
-      box.addEventListener("scroll", check);
-      window.setTimeout(check, 400);
+      if (hint) hint.textContent = "請勾選同意並完成手寫簽名。";
     }
     function validateStep2() {
       clearErrors("step-1");
-      if (!termsRead) { showBanner(1, "請先滑動閱讀全部契約條款。"); document.getElementById("terms-box").focus(); return false; }
-      if (!$("#agreeTerms").checked) { setErr("agreeTerms", "請勾選同意採用電子文件與手寫電子簽章"); return false; }
-      if (!$("#agreePhoto").checked) { setErr("agreePhoto", "請勾選同意本館拍攝及使用毛孩影像"); return false; }
+      if (!termsRead) {
+        showBanner(1, "請先滑動閱讀全部契約條款。");
+        document.getElementById("terms-box").focus();
+        return false;
+      }
+      if (!$("#agreeTerms").checked) {
+        setErr("agreeTerms", "請勾選同意採用電子文件與手寫電子簽章");
+        document.getElementById("agree-label").scrollIntoView({ block: "center" });
+        return false;
+      }
+      if (!$("#agreePhoto").checked) {
+        setErr("agreePhoto", "請勾選同意本館拍攝及使用毛孩影像");
+        document.getElementById("agree-photo-label").scrollIntoView({ block: "center" });
+        return false;
+      }
       if (!signatureReady()) { setErr("signature", "請在簽名框內手寫簽名"); return false; }
       return true;
     }
@@ -1908,14 +2139,105 @@
       setErr("otp", ok ? "" : "請輸入 6 位數驗證碼");
       return ok;
     }
-    function fillSummary() {
-      const phone = normalizeTwMobile(val("ownerPhone"));
-      $("#sum-owner").textContent = val("ownerName") || "—";
-      $("#sum-pet").textContent = petCards().map((c) => cardVal(c, "name")).filter(Boolean).join("、") || "—";
-      $("#sum-phone").textContent = phone ? prettyPhone(phone) : val("ownerPhone") || "—";
-      $("#sum-email").textContent = val("ownerEmail") || "—";
-      $("#sum-emergency").textContent = [val("emergencyName"), digitsOnly(val("emergencyPhone"))].filter(Boolean).join("　") || "—";
-      $("#sum-medical").textContent = medicalAuth() || "—";
+    function escHtml(s) {
+      return String(s == null ? "" : s)
+        .replace(/&/g, "&#38;")
+        .replace(/</g, "&#60;")
+        .replace(/>/g, "&#62;")
+        .replace(/"/g, "&#34;")
+        .replace(/'/g, "&#39;");
+    }
+    function previewAgreed() {
+      const el = document.getElementById("agreePreview");
+      return !!(el && el.checked);
+    }
+    function gateEmailVerify() {
+      const on = previewAgreed();
+      const box = document.getElementById("email-verify");
+      const submit = document.getElementById("submit-form");
+      if (box) box.hidden = !on;
+      if (submit) submit.hidden = !on;
+      setErr("agreePreview", "");
+      if (on) {
+        const mail = val("ownerEmail");
+        const lede = document.getElementById("email-verify-lede");
+        if (lede) lede.textContent = "驗證碼將寄到 " + mail + "，用來確認是本人簽署本契約。";
+        box && box.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+      }
+    }
+    function fillContractPreview() {
+      const src = document.getElementById("terms-box");
+      const dest = document.getElementById("contract-preview-body");
+      const kv = document.getElementById("preview-kv");
+      if (!src || !dest || !kv) return;
+      dest.innerHTML = src.innerHTML;
+      dest.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+      dest.querySelectorAll(".terms-done").forEach((el) => el.remove());
+      const form = collectForm();
+      const o = form.owner || {};
+      const phone = prettyPhone(o.phone) || o.phone || "—";
+      const pets = (form.pets || []).map((p) => {
+        const who = p.name || "";
+        const kind = [p.species, p.breed].filter(Boolean).join("／");
+        return kind ? who + "（" + kind + "）" : who;
+      }).filter(Boolean).join("、") || "—";
+      const ePhone = o.emergencyPhone || "—";
+      const rows = [
+        ["委託人（乙方）", o.name || "—"],
+        ["連絡電話", phone],
+        ["電子信箱", o.email || "—"],
+        ["身分證字號", o.idNo || "—"],
+        ["居住地址", o.address || "—"],
+        ["緊急聯絡人", (o.emergencyName || "—") + "　" + ePhone],
+        ["本契約寵物", pets],
+        ["緊急醫療授權", o.medicalAuth || "—"]
+      ];
+      kv.innerHTML = rows.map(([k, v]) => "<div><dt>" + escHtml(k) + "</dt><dd>" + escHtml(v) + "</dd></div>").join("");
+      const filled = {
+        ownerName: o.name || "—",
+        phone: phone,
+        emergencyName: o.emergencyName || "—",
+        emergencyPhone: ePhone,
+        idNo: o.idNo || "—",
+        address: o.address || "—"
+      };
+      const labels = {
+        partyA: "受託人(甲方)",
+        rep: "代表人",
+        tax: "統一編號",
+        shopAddr: "營業地址",
+        ownerName: "委託人(乙方)",
+        phone: "連絡電話",
+        emergencyName: "緊急聯絡人",
+        emergencyPhone: "緊急連絡人電話",
+        idNo: "身分證字號",
+        address: "居住地址"
+      };
+      const fixed = {
+        partyA: "NicoNico寵物精緻美容&旅館",
+        rep: "李易曄",
+        tax: "98648994",
+        shopAddr: "台中市北屯區敦富五街37號"
+      };
+      dest.querySelectorAll("[data-party]").forEach((li) => {
+        const key = li.getAttribute("data-party");
+        const lab = labels[key] || key;
+        const v = Object.prototype.hasOwnProperty.call(filled, key) ? filled[key] : (fixed[key] || "");
+        li.innerHTML = escHtml(lab) + "： <strong>" + escHtml(v) + "</strong>";
+      });
+      const med = document.getElementById("preview-medical");
+      if (med) {
+        med.textContent = o.medicalAuth === "立即送醫"
+          ? "乙方已選擇：寵物有緊急狀況時，立即送往附近合法醫療院所，費用由乙方負擔。"
+          : o.medicalAuth === "須先同意"
+            ? "乙方已選擇：寵物有緊急狀況時，須先取得乙方同意後再送醫，費用由乙方負擔。"
+            : "請確認緊急醫療授權選擇。";
+      }
+      const img = document.getElementById("preview-sign-img");
+      if (img) img.src = exportSignature() || "";
+      const agree = document.getElementById("agreePreview");
+      if (agree) agree.checked = false;
+      gateEmailVerify();
     }
     function showPanel(n) {
       current = n;
@@ -1926,7 +2248,7 @@
         li.classList.toggle("is-done", s < n);
       });
       if (n === 1) { initPad(); watchTerms(); }
-      if (n === 3) fillSummary();
+      if (n === 3) fillContractPreview();
       window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
     }
     function deviceInfo() {
@@ -1965,6 +2287,11 @@
       otpTimer = setInterval(tick, 1000);
     }
     async function sendOtp() {
+      if (!previewAgreed()) {
+        setErr("agreePreview", "請先確認契約預覽並勾選同意");
+        document.getElementById("agreePreview").focus();
+        return;
+      }
       if (!validateStep1()) { showPanel(2); return; }
       const email = val("ownerEmail");
       try {
@@ -2005,6 +2332,11 @@
       clearErrors("step-3");
       if (!validateStep2()) { showPanel(1); return; }
       if (!validateStep1()) { showPanel(2); return; }
+      if (!previewAgreed()) {
+        setErr("agreePreview", "請先確認契約預覽並勾選同意");
+        document.getElementById("agree-preview-label").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+        return;
+      }
       if (!validateOtp()) { firstErrorFocus("step-3"); return; }
       submitting = true;
       const btn = document.getElementById("submit-form");
@@ -2018,6 +2350,7 @@
           signatureDataUrl: exportSignature(),
           agreedToTerms: true,
           agreedToPhoto: true,
+          agreedToPreview: true,
           agreedAt: new Date().toISOString(),
           device: deviceInfo(),
           form: collectForm()
@@ -2072,9 +2405,23 @@
     initPad();
     watchTerms();
     document.getElementById("to-step-2").addEventListener("click", () => { if (validateStep2()) { saveDraft(); showPanel(2); } });
-    document.getElementById("to-step-3").addEventListener("click", () => { if (validateStep1()) { saveDraft(); fillSummary(); showPanel(3); } });
+    document.getElementById("to-step-3").addEventListener("click", () => { if (validateStep1()) { saveDraft(); showPanel(3); } });
     document.getElementById("back-1").addEventListener("click", () => showPanel(1));
     document.getElementById("back-2").addEventListener("click", () => showPanel(2));
+    document.getElementById("agreePreview").addEventListener("change", gateEmailVerify);
+    const termsDone = document.getElementById("terms-done");
+    if (termsDone) termsDone.addEventListener("click", unlockAgree);
+    document.getElementById("agreeTerms").addEventListener("change", () => {
+      if (document.getElementById("agreeTerms").checked) unlockAgree();
+    });
+    document.getElementById("agreePhoto").addEventListener("change", () => {
+      if (document.getElementById("agreePhoto").checked) unlockAgree();
+    });
+    document.getElementById("agree-label").addEventListener("click", (e) => {
+      if (e.target && e.target.id === "agreeTerms") return;
+      const box = document.getElementById("agreeTerms");
+      if (box.disabled) { unlockAgree(); }
+    });
     document.getElementById("clear-sign").addEventListener("click", () => { if (pad) pad.clear(); setErr("signature", ""); previewSignature(); });
     document.getElementById("send-otp").addEventListener("click", sendOtp);
     document.getElementById("submit-form").addEventListener("click", submitAll);
