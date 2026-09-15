@@ -1779,6 +1779,9 @@
           </div>
         </div>
         <a class="pdf-link" id="pdf-link" hidden target="_blank" rel="noopener noreferrer">下載契約副本（PDF）</a>
+        <div class="pet-actions" style="margin-top:16px">
+          <button type="button" class="btn btn-ghost" id="clear-local-data">清除本機資料</button>
+        </div>
       </article>
     </section>
 
@@ -1932,6 +1935,7 @@
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxecxFKyGXNkWdRmuvuQEwZD0-Z9i5Udwyy2u6bOsD_RF58Qkcl-iGKm0JEYnW9FalMIA/exec";
     const TURNSTILE_SITE_KEY = "0x4AAAAAAEzb6D-4jcGrYfWD";
     const DRAFT_KEY = "nico-qisu-draft-v3";
+    const DRAFT_KEY_OLD = "nico-qisu-draft-v2";
     const MAX_PETS = 3;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const BREEDS = {
@@ -2295,9 +2299,18 @@
     function saveDraft() {
       try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(collectForm())); } catch (e) {}
     }
+    function clearLocalData() {
+      try {
+        sessionStorage.removeItem(DRAFT_KEY);
+        sessionStorage.removeItem(DRAFT_KEY_OLD);
+      } catch (e) {}
+      const form = document.getElementById("park-form");
+      if (form) form.reset();
+      if (pad) pad.clear();
+    }
     function restoreDraft() {
       try {
-        const raw = sessionStorage.getItem(DRAFT_KEY);
+        const raw = sessionStorage.getItem(DRAFT_KEY) || sessionStorage.getItem(DRAFT_KEY_OLD);
         if (!raw) { fillCitySelect(); if (!petCards().length) addPet(); return; }
         const data = JSON.parse(raw);
         const o = data.owner || {};
@@ -2821,8 +2834,8 @@
         resetTurnstile();
         const caseId = data.caseId || data.case_id || "";
         const pdfUrl = data.pdfUrl || data.pdf_url || "";
+        clearLocalData();
         showSuccess({ caseId, pdfUrl, message: data.message });
-        try { sessionStorage.removeItem(DRAFT_KEY); } catch (e) {}
       } catch (err) {
         showBanner(4, err.message || "送出失敗，請稍後再試。");
       } finally {
@@ -2842,7 +2855,7 @@
         document.getElementById("case-box").hidden = false;
         document.getElementById("case-id").textContent = info.caseId;
       }
-      if (info.pdfUrl) {
+      if (info.pdfUrl && /^https?:\/\//i.test(info.pdfUrl)) {
         const a = document.getElementById("pdf-link");
         a.hidden = false;
         a.href = info.pdfUrl;
@@ -2939,6 +2952,12 @@
     fillCitySelect();
     document.getElementById("addrCity").addEventListener("change", () => fillDistrictSelect(""));
     document.getElementById("otp").addEventListener("input", (e) => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6); });
+    document.getElementById("clear-local-data").addEventListener("click", (e) => {
+      clearLocalData();
+      e.currentTarget.disabled = true;
+      e.currentTarget.textContent = "本機資料已清除";
+      announce("本機暫存資料已清除");
+    });
     document.getElementById("park-form").addEventListener("change", saveDraft);
     document.getElementById("park-form").addEventListener("input", () => {
       window.clearTimeout(document.getElementById("park-form")._t);
