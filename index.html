@@ -988,7 +988,6 @@
       letter-spacing: 0.06em;
       color: var(--muted);
     }
-    .cf-box iframe, .cf-box .cf-turnstile { max-width: 100%; }
     #step-1, #step-2, #step-3, #step-4 {
       padding-bottom: 0;
     }
@@ -1520,9 +1519,6 @@
           <p class="lede">欄位依紙本《寵物寄宿安親契約書》簽署欄。電子郵件僅供發送驗證碼與契約副本。</p>
           <div id="banner-2"></div>
           <div class="stack">
-            <div class="cf-box" id="cf-register-wrap" hidden>
-              <div id="cf-register"></div>
-            </div>
             <div class="field">
               <label for="ownerName">委託人姓名 <span class="req">必填</span></label>
               <input id="ownerName" name="ownerName" type="text" maxlength="6" autocomplete="name" inputmode="text" />
@@ -1933,7 +1929,6 @@
   <script>
   (function () {
     const GAS_WEB_APP_URL = "https://nico-api-proxy.nicopetpark.workers.dev/qisu";
-    const TURNSTILE_SITE_KEY = "0x4AAAAAAEzb6D-4jcGrYfWD";
     const DRAFT_KEY = "nico-qisu-draft-v3";
     const DRAFT_KEY_OLD = "nico-qisu-draft-v2";
     const MAX_PETS = 3;
@@ -2690,42 +2685,6 @@
     }
     class AppError extends Error {}
 
-    let cfRegisterId = null;
-    function turnstileEnabled() {
-      return /^0[a-zA-Z0-9_-]{10,}/.test(String(TURNSTILE_SITE_KEY || "").trim())
-        || /^[0-9A-Za-z_-]{10,}$/.test(String(TURNSTILE_SITE_KEY || "").trim());
-    }
-    function mountTurnstile() {
-      if (!turnstileEnabled() || !window.turnstile) return null;
-      const host = document.getElementById("cf-register");
-      if (!host) return null;
-      host.replaceChildren();
-      return window.turnstile.render(host, {
-        sitekey: TURNSTILE_SITE_KEY.trim(), theme: "light", language: "zh-TW", appearance: "always"
-      });
-    }
-    function loadTurnstile() {
-      if (!turnstileEnabled()) return;
-      const wrap = document.getElementById("cf-register-wrap");
-      if (wrap) wrap.hidden = false;
-      if (window.turnstile) { cfRegisterId = mountTurnstile(); return; }
-      const script = document.createElement("script");
-      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-      script.async = true;
-      script.defer = true;
-      script.onload = () => { cfRegisterId = mountTurnstile(); };
-      document.head.appendChild(script);
-    }
-    function readTurnstile() {
-      if (!turnstileEnabled()) return "";
-      if (!window.turnstile) throw new AppError("安全驗證尚未載入完成，請稍候再試。");
-      const token = window.turnstile.getResponse(cfRegisterId);
-      if (!token) throw new AppError("請先完成安全驗證後再試。");
-      return token;
-    }
-    function resetTurnstile() {
-      try { if (window.turnstile && cfRegisterId != null) window.turnstile.reset(cfRegisterId); } catch (e) {}
-    }
 
     async function callGas(payload) {
       const u = String(GAS_WEB_APP_URL || "").trim();
@@ -2768,9 +2727,8 @@
       if (!validateCare()) { showPanel(3); return; }
       const email = val("ownerEmail");
       try {
-        await callGas({ action: "sendOtp", formType: "boarding", email: email, owner: collectForm().owner, turnstileToken: readTurnstile() });
-        resetTurnstile();
-        startOtpCount();
+        await callGas({ action: "sendOtp", formType: "boarding", email: email, owner: collectForm().owner });
+startOtpCount();
         showBanner(4, "驗證碼已寄到 " + email + "。請於 10 分鐘內輸入；若沒看到，請看垃圾信件或促銷分頁。", "ok");
       } catch (err) {
         showBanner(4, err.message || "驗證碼發送失敗，請稍後再試。");
@@ -2828,11 +2786,9 @@
           agreedToPreview: true,
           agreedAt: new Date().toISOString(),
           device: deviceInfo(),
-          form: collectForm(),
-          turnstileToken: readTurnstile()
+          form: collectForm()
         });
-        resetTurnstile();
-        const caseId = data.caseId || data.case_id || "";
+const caseId = data.caseId || data.case_id || "";
         const pdfUrl = data.pdfUrl || data.pdf_url || "";
         clearLocalData();
         showSuccess({ caseId, pdfUrl, message: data.message });
@@ -2880,7 +2836,7 @@
     restoreDraft();
     fillContractDate();
     initPad();
-    loadTurnstile();
+
     watchTerms();
     document.getElementById("to-step-2").addEventListener("click", () => { if (validateStep2()) { saveDraft(); showPanel(2); } });
     document.getElementById("to-step-3").addEventListener("click", () => { if (validateStep1()) { saveDraft(); showPanel(3); } });
