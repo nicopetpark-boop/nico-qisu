@@ -854,20 +854,35 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
       padding: 8px 12px;
       background: #3a312a;
       color: #fffdf9;
+      position: relative;
+      z-index: 3;
+      pointer-events: auto;
     }
     .sign-land-bar .btn {
       width: auto !important;
       flex: 0 0 auto !important;
       min-width: 72px;
-      min-height: 40px !important;
+      min-height: 44px !important;
       height: auto;
       padding: 8px 14px;
       white-space: nowrap;
       font-size: 0.9rem;
+      pointer-events: auto;
+      position: relative;
+      z-index: 4;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .sign-land-bar #sign-land-close {
+      min-width: 44px !important;
+      padding: 8px 10px;
+      font-size: 1.25rem;
+      line-height: 1;
+      color: #fffdf9;
+      border-color: rgba(255, 253, 249, 0.45);
     }
     .sign-land-tip {
       margin: 0;
@@ -2056,7 +2071,19 @@
     </article>
   </template>
 
-  <script>
+    <div id="sign-land-overlay" class="sign-land-overlay" hidden>
+    <div class="sign-land-bar">
+      <button type="button" class="btn btn-ghost" id="sign-land-close" aria-label="關閉">✕</button>
+      <button type="button" class="btn btn-ghost" id="sign-land-clear">清除</button>
+      <p class="sign-land-tip" id="sign-land-tip">請在下方空白處簽名，簽完按「完成」</p>
+      <button type="button" class="btn btn-primary" id="sign-land-done">完成</button>
+    </div>
+    <div class="sign-land-frame">
+      <canvas id="signature-land" width="1280" height="560"></canvas>
+    </div>
+  </div>
+
+<script>
   (function () {
     const GAS_WEB_APP_URL = "https://nico-api-proxy.nicopetpark.workers.dev/qisu";
     const DRAFT_KEY = "nico-qisu-draft-v3";
@@ -3073,8 +3100,14 @@ const caseId = data.caseId || data.case_id || "";
     });
     document.getElementById("clear-sign").addEventListener("click", () => { if (pad) pad.clear(); setErr("signature", ""); previewSignature(); });
     document.getElementById("sign-landscape").addEventListener("click", openLandSign);
-    document.getElementById("sign-land-done").addEventListener("click", () => closeLandSign(true));
-    document.getElementById("sign-land-clear").addEventListener("click", () => { if (landPad) landPad.clear(); });
+    document.addEventListener("click", function (e) {
+      const t = e.target && e.target.closest ? e.target.closest("#sign-land-done, #sign-land-clear, #sign-land-close") : null;
+      if (!t) return;
+      e.preventDefault();
+      if (t.id === "sign-land-done") closeLandSign(true);
+      else if (t.id === "sign-land-clear") { if (landPad) landPad.clear(); }
+      else if (t.id === "sign-land-close") closeLandSign(false);
+    });
     const frame = document.querySelector(".sign-frame");
     if (frame) frame.addEventListener("click", () => {
       if (window.matchMedia("(pointer: coarse)").matches) openLandSign();
@@ -3165,15 +3198,5 @@ const caseId = data.caseId || data.case_id || "";
     });
   })();
   </script>
-  <div id="sign-land-overlay" class="sign-land-overlay" hidden>
-    <div class="sign-land-bar">
-      <button type="button" class="btn btn-ghost" id="sign-land-clear">清除</button>
-      <p class="sign-land-tip" id="sign-land-tip">請在下方空白處簽名，簽完按「完成」</p>
-      <button type="button" class="btn btn-primary" id="sign-land-done">完成</button>
-    </div>
-    <div class="sign-land-frame">
-      <canvas id="signature-land" width="1280" height="560"></canvas>
-    </div>
-  </div>
 </body>
 </html>
