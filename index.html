@@ -833,12 +833,18 @@
     .sign-head-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
     .sign-land-overlay {
       position: fixed;
-      inset: 0;
-      z-index: 9999;
-      width: 100vw;
-      height: 100vh;
-      height: 100dvh;
-      max-height: 100dvh;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2147483000;
+      width: auto;
+      height: auto;
+      min-width: 100%;
+      min-height: 100%;
+      min-height: 100dvh;
+      max-width: none;
+      margin: 0;
       background: #2a221c;
       display: flex;
       flex-direction: column;
@@ -847,6 +853,7 @@
       -webkit-user-select: none;
       user-select: none;
       -webkit-touch-callout: none;
+      transform: translateZ(0);
     }
     .sign-land-overlay[hidden] { display: none !important; }
     .sign-land-bar {
@@ -886,12 +893,19 @@
     }
     .sign-land-tip {
       margin: 0;
-      flex: 1 1 auto;
+      flex: 1 1 0;
       min-width: 0;
       text-align: center;
-      font-size: 0.85rem;
-      line-height: 1.3;
+      font-size: 0.8rem;
+      line-height: 1.25;
       color: #f3ebe3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sign-land-bar #sign-land-done {
+      flex-shrink: 0 !important;
+      min-width: 72px;
     }
     .sign-land-frame {
       flex: 1 1 auto;
@@ -920,14 +934,12 @@
     body.sign-land-open {
       overflow: hidden !important;
       touch-action: none;
-      height: 100%;
       overscroll-behavior: none;
+      max-width: none !important;
+      width: 100% !important;
+      height: 100% !important;
     }
-    body.sign-land-open {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-    }
+    /* Do NOT position:fixed the body — on iPhone that locks portrait width after rotate. */
     .sign-head {
       display: flex;
       align-items: center;
@@ -2075,7 +2087,7 @@
     <div class="sign-land-bar">
       <button type="button" class="btn btn-ghost" id="sign-land-close" aria-label="關閉">✕</button>
       <button type="button" class="btn btn-ghost" id="sign-land-clear">清除</button>
-      <p class="sign-land-tip" id="sign-land-tip">請在下方空白處簽名，簽完按「完成」</p>
+      <p class="sign-land-tip" id="sign-land-tip">請在下方簽名，簽完按「完成」</p>
       <button type="button" class="btn btn-primary" id="sign-land-done">完成</button>
     </div>
     <div class="sign-land-frame">
@@ -2684,7 +2696,45 @@
       const tip = document.getElementById("sign-land-tip");
       if (!tip) return;
       const land = window.matchMedia("(orientation: landscape)").matches;
-      tip.textContent = land ? "請在下方空白處簽名，簽完按「完成」" : "請先將手機轉成橫向，再於空白處簽名";
+      tip.textContent = land ? "請在下方簽名，簽完按「完成」" : "請先將手機轉成橫向再簽名";
+    }
+    function layoutLandOverlay() {
+      const overlay = document.getElementById("sign-land-overlay");
+      if (!overlay || overlay.hidden) return;
+      const vv = window.visualViewport;
+      if (vv) {
+        overlay.style.top = Math.round(vv.offsetTop) + "px";
+        overlay.style.left = Math.round(vv.offsetLeft) + "px";
+        overlay.style.right = "auto";
+        overlay.style.bottom = "auto";
+        overlay.style.width = Math.round(vv.width) + "px";
+        overlay.style.height = Math.round(vv.height) + "px";
+        overlay.style.minWidth = "0";
+        overlay.style.minHeight = "0";
+      } else {
+        overlay.style.top = "0";
+        overlay.style.left = "0";
+        overlay.style.right = "0";
+        overlay.style.bottom = "0";
+        overlay.style.width = "auto";
+        overlay.style.height = "auto";
+        overlay.style.minWidth = "";
+        overlay.style.minHeight = "";
+      }
+      syncLandTip();
+      resizeLandPad();
+    }
+    function clearLandOverlayLayout() {
+      const overlay = document.getElementById("sign-land-overlay");
+      if (!overlay) return;
+      overlay.style.top = "";
+      overlay.style.left = "";
+      overlay.style.right = "";
+      overlay.style.bottom = "";
+      overlay.style.width = "";
+      overlay.style.height = "";
+      overlay.style.minWidth = "";
+      overlay.style.minHeight = "";
     }
     function initLandPad() {
       const canvas = document.getElementById("signature-land");
@@ -2704,22 +2754,23 @@
     function openLandSign() {
       const overlay = document.getElementById("sign-land-overlay");
       if (!overlay) return;
+      // Keep overlay on <html> so body width locks cannot clip landscape width.
+      if (overlay.parentElement !== document.documentElement) {
+        document.documentElement.appendChild(overlay);
+      }
       overlay.hidden = false;
       document.documentElement.classList.add("sign-land-open");
       document.body.classList.add("sign-land-open");
-      syncLandTip();
       try { screen.orientation && screen.orientation.lock && screen.orientation.lock("landscape"); } catch (e) {}
       initLandPad();
       if (pad && !pad.isEmpty()) landPad.fromData(pad.toData());
       else if (landPad) landPad.clear();
+      layoutLandOverlay();
       requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          resizeLandPad();
-          syncLandTip();
-        });
+        requestAnimationFrame(layoutLandOverlay);
       });
-      setTimeout(function () { resizeLandPad(); syncLandTip(); }, 250);
-      setTimeout(function () { resizeLandPad(); syncLandTip(); }, 600);
+      setTimeout(layoutLandOverlay, 250);
+      setTimeout(layoutLandOverlay, 600);
     }
     function closeLandSign(save) {
       if (save && landPad && !landPad.isEmpty()) {
@@ -2728,6 +2779,7 @@
       }
       const overlay = document.getElementById("sign-land-overlay");
       if (overlay) overlay.hidden = true;
+      clearLandOverlayLayout();
       document.documentElement.classList.remove("sign-land-open");
       document.body.classList.remove("sign-land-open");
       try { screen.orientation && screen.orientation.unlock && screen.orientation.unlock(); } catch (e) {}
@@ -3175,16 +3227,27 @@ const caseId = data.caseId || data.case_id || "";
     document.getElementById("park-form").addEventListener("submit", (e) => e.preventDefault());
     window.addEventListener("resize", () => {
       const overlay = document.getElementById("sign-land-overlay");
-      if (overlay && !overlay.hidden) { resizeLandPad(); syncLandTip(); }
+      if (overlay && !overlay.hidden) layoutLandOverlay();
       if (current === 1) resizePad();
     });
     window.addEventListener("orientationchange", () => {
       const overlay = document.getElementById("sign-land-overlay");
       if (overlay && !overlay.hidden) {
-        setTimeout(function () { resizeLandPad(); syncLandTip(); }, 120);
-        setTimeout(function () { resizeLandPad(); syncLandTip(); }, 400);
+        setTimeout(layoutLandOverlay, 50);
+        setTimeout(layoutLandOverlay, 200);
+        setTimeout(layoutLandOverlay, 450);
       }
     });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", function () {
+        const overlay = document.getElementById("sign-land-overlay");
+        if (overlay && !overlay.hidden) layoutLandOverlay();
+      });
+      window.visualViewport.addEventListener("scroll", function () {
+        const overlay = document.getElementById("sign-land-overlay");
+        if (overlay && !overlay.hidden) layoutLandOverlay();
+      });
+    }
     window.addEventListener("beforeunload", (e) => {
       if (!submitting) return;
       e.preventDefault();
