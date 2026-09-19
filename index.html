@@ -2257,7 +2257,7 @@
     function collectPet(card) {
       const id = card.getAttribute("data-pet-id");
       const live = collectCareFrom(document.querySelector("#care-root [data-care=\"" + id + "\"]"));
-      const row = Object.assign({ id: id }, collectPetLite(card), petCareStore[id] || {}, live);
+      const row = Object.assign({ id: id }, petCareStore[id] || {}, live, collectPetLite(card));
       petCareStore[id] = row;
       return row;
     }
@@ -2319,7 +2319,7 @@
         pet: pets[0] || {}
       };
     }
-    function saveDraft() {
+    function saveDraft() {  
       try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(collectForm())); } catch (e) {}
     }
     function clearLocalData() {
@@ -2329,6 +2329,7 @@
       } catch (e) {}
       const form = document.getElementById("park-form");
       if (form) form.reset();
+      petCareStore = {};
       if (pad) pad.clear();
     }
     function restoreDraft() {
