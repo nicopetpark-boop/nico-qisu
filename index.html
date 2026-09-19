@@ -830,6 +830,33 @@
       color: var(--muted);
     }
 
+    .sign-head-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+    .sign-land-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #2a221c;
+      display: flex; flex-direction: column;
+      padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+      -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+    }
+    .sign-land-overlay[hidden] { display: none !important; }
+    .sign-land-bar {
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding: 10px 12px; background:#3a312a; color:#fffdf9;
+    }
+    .sign-land-tip { margin:0; flex:1; text-align:center; font-size:0.9rem; color:#f3ebe3; }
+    .sign-land-frame {
+      flex:1; margin: 10px 12px 12px; border-radius: 16px; overflow:hidden;
+      background: rgb(255, 248, 243); touch-action:none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.15);
+    }
+    .sign-land-frame canvas {
+      width:100%; height:100%; display:block; touch-action:none;
+      -webkit-user-select:none; user-select:none; -webkit-user-drag:none;
+    }
+    body.sign-land-open { overflow:hidden; touch-action:none; }
+    @media (orientation: portrait) {
+      .sign-land-tip::after { content: "（請旋轉手機）"; }
+    }
     .sign-head {
       display: flex;
       align-items: center;
@@ -880,6 +907,9 @@
       box-shadow: inset 0 0 0 1px rgba(138, 83, 64, 0.1);
       position: relative;
       touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
     }
     .sign-frame canvas {
       width: 100%;
@@ -887,20 +917,17 @@
       display: block;
       touch-action: none;
       cursor: crosshair;
-      .sign-block,
-      .sign-block h3,
-      .sign-block .hin,
-      .sign-frame,
-      .sign-frame canvas {
-          -webkit-user-select: none;
-          user-select: none;
-          -webkit-touch-callout: none;
-          -webkit-tap-highlight-color: transparent;
-      }
-      .sign-frame canvas {
-          -webkit-user-drag: none;
-      }
-      
+      -webkit-user-drag: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .sign-block,
+    .sign-block h3,
+    .sign-block .hint {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
     }
     .sign-hint {
       margin: 8px 0 0;
@@ -1724,9 +1751,12 @@
           <div class="sign-block">
             <div class="sign-head">
             <h3>手寫電子簽章</h3>
-            <button type="button" class="btn btn-ghost" id="clear-sign">清除重簽</button>
+            <div class="sign-head-actions">
+              <button type="button" class="btn btn-ghost" id="sign-landscape">橫向簽名</button>
+              <button type="button" class="btn btn-ghost" id="clear-sign">清除重簽</button>
+            </div>
           </div>
-          <p class="hint">請用手指或觸控筆在框內簽名。</p>
+          <p class="hint">請用手指或觸控筆在框內簽名；手機可點「橫向簽名」轉橫簽完再回來。</p>
           <div class="sign-frame">
             <canvas id="signature" width="640" height="280"></canvas>
           </div>
@@ -2009,6 +2039,7 @@
 
     let current = 1;
     let pad = null;
+    let landPad = null;
     let petSeq = 0;
     let petCareStore = {};
     let termsRead = false;
@@ -2547,6 +2578,58 @@
       }
       resizePad();
     }
+    function resizeLandPad() {
+      const canvas = document.getElementById("signature-land");
+      if (!canvas || !landPad) return;
+      const data = landPad.toData();
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.floor(rect.width * ratio);
+      canvas.height = Math.floor(rect.height * ratio);
+      const ctx = canvas.getContext("2d");
+      ctx.scale(ratio, ratio);
+      landPad.clear();
+      if (data && data.length) landPad.fromData(data);
+    }
+    function initLandPad() {
+      const canvas = document.getElementById("signature-land");
+      if (!canvas || typeof SignaturePad === "undefined") return;
+      canvas.style.touchAction = "none";
+      if (!canvas.dataset.touchLock) {
+        canvas.dataset.touchLock = "1";
+        ["touchstart", "touchmove", "touchend"].forEach(function (evt) {
+          canvas.addEventListener(evt, function (e) {
+            if (e.cancelable) e.preventDefault();
+          }, { passive: false });
+        });
+      }
+      if (!landPad) landPad = new SignaturePad(canvas, { minWidth: 1.15, maxWidth: 2.8, penColor: "rgb(106, 60, 46)", backgroundColor: "rgb(255, 248, 243)", throttle: 8 });
+      resizeLandPad();
+    }
+    function openLandSign() {
+      const overlay = document.getElementById("sign-land-overlay");
+      if (!overlay) return;
+      overlay.hidden = false;
+      document.body.classList.add("sign-land-open");
+      try { screen.orientation && screen.orientation.lock && screen.orientation.lock("landscape"); } catch (e) {}
+      initLandPad();
+      if (pad && !pad.isEmpty()) landPad.fromData(pad.toData());
+      else if (landPad) landPad.clear();
+      resizeLandPad();
+      setTimeout(resizeLandPad, 250);
+      setTimeout(resizeLandPad, 600);
+    }
+    function closeLandSign(save) {
+      if (save && landPad && !landPad.isEmpty()) {
+        if (!pad) initPad();
+        if (pad) { pad.clear(); pad.fromData(landPad.toData()); previewSignature(); setErr("signature", ""); }
+      }
+      const overlay = document.getElementById("sign-land-overlay");
+      if (overlay) overlay.hidden = true;
+      document.body.classList.remove("sign-land-open");
+      try { screen.orientation && screen.orientation.unlock && screen.orientation.unlock(); } catch (e) {}
+      resizePad();
+    }
     function watchTerms() {
       const box = document.getElementById("terms-box");
       const end = document.getElementById("terms-end");
@@ -2913,6 +2996,13 @@ const caseId = data.caseId || data.case_id || "";
       if (box.disabled) { unlockAgree(); }
     });
     document.getElementById("clear-sign").addEventListener("click", () => { if (pad) pad.clear(); setErr("signature", ""); previewSignature(); });
+    document.getElementById("sign-landscape").addEventListener("click", openLandSign);
+    document.getElementById("sign-land-done").addEventListener("click", () => closeLandSign(true));
+    document.getElementById("sign-land-clear").addEventListener("click", () => { if (landPad) landPad.clear(); });
+    const frame = document.querySelector(".sign-frame");
+    if (frame) frame.addEventListener("click", () => {
+      if (window.matchMedia("(pointer: coarse)").matches) openLandSign();
+    });
     document.getElementById("send-otp").addEventListener("click", sendOtp);
     document.getElementById("submit-form").addEventListener("click", submitAll);
     document.getElementById("add-pet").addEventListener("click", () => {
@@ -2974,7 +3064,15 @@ const caseId = data.caseId || data.case_id || "";
       document.getElementById("park-form")._t = setTimeout(saveDraft, 400);
     });
     document.getElementById("park-form").addEventListener("submit", (e) => e.preventDefault());
-    window.addEventListener("resize", () => { if (current === 1) resizePad(); });
+    window.addEventListener("resize", () => {
+      const overlay = document.getElementById("sign-land-overlay");
+      if (overlay && !overlay.hidden) resizeLandPad();
+      if (current === 1) resizePad();
+    });
+    window.addEventListener("orientationchange", () => {
+      const overlay = document.getElementById("sign-land-overlay");
+      if (overlay && !overlay.hidden) resizeLandPad();
+    });
     window.addEventListener("beforeunload", (e) => {
       if (!submitting) return;
       e.preventDefault();
@@ -2988,5 +3086,15 @@ const caseId = data.caseId || data.case_id || "";
     });
   })();
   </script>
+  <div id="sign-land-overlay" class="sign-land-overlay" hidden>
+    <div class="sign-land-bar">
+      <button type="button" class="btn btn-ghost" id="sign-land-clear">清除</button>
+      <p class="sign-land-tip">請將手機轉成橫向後簽名</p>
+      <button type="button" class="btn btn-primary" id="sign-land-done">完成</button>
+    </div>
+    <div class="sign-land-frame">
+      <canvas id="signature-land" width="1280" height="560"></canvas>
+    </div>
+  </div>
 </body>
 </html>
