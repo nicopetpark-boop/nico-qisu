@@ -887,6 +887,20 @@
       display: block;
       touch-action: none;
       cursor: crosshair;
+      .sign-block,
+      .sign-block h3,
+      .sign-block .hin,
+      .sign-frame,
+      .sign-frame canvas {
+          -webkit-user-select: none;
+          user-select: none;
+          -webkit-touch-callout: none;
+          -webkit-tap-highlight-color: transparent;
+      }
+      .sign-frame canvas {
+          -webkit-user-drag: none;
+      }
+      
     }
     .sign-hint {
       margin: 8px 0 0;
@@ -1707,7 +1721,8 @@
             <span>本人同意本館於寄宿安親期間拍攝毛孩影像，並依契約第七條所定範圍，用於照護紀錄、官方網站及社群宣傳。本同意不及於以本人之可辨識面貌作為主要拍攝或宣傳對象。本人了解已公開內容可能無法全部回收。</span>
           </label>
           <p class="error" data-err="agreePhoto"></p>
-          <div class="sign-head">
+          <div class="sign-block">
+            <div class="sign-head">
             <h3>手寫電子簽章</h3>
             <button type="button" class="btn btn-ghost" id="clear-sign">清除重簽</button>
           </div>
@@ -1719,6 +1734,7 @@
           <div class="sign-preview-wrap" id="sign-preview-wrap" hidden>
             <p>簽名預覽</p>
             <img id="sign-preview" alt="簽名預覽" />
+          </div>
           </div>
         </article>
         <div class="actions">
@@ -2511,6 +2527,15 @@
         return;
       }
       canvas.style.touchAction = "none";
+      if (!canvas.dataset.touchLock) {
+          canvas.dataset.touchLock = "1";
+          ["touchstart", "touchmove", "touchend"].forEach(function (evt) {
+                canvas.addEventListener(evt, function (e) {
+                        if (e.cancelable) e.preventDefault();
+                }, { passive: false });
+          });
+      }
+      
       if (!pad) {
         pad = new SignaturePad(canvas, {
           minWidth: 1.15, maxWidth: 2.8,
