@@ -1105,6 +1105,11 @@
       line-height: 1.45;
     }
     .submit-wait[hidden] { display: none !important; }
+    .otp-wait {
+      padding: 12px 14px;
+      border-radius: var(--radius-lg);
+      background: var(--warm);
+    }
     .submit-wait strong {
       font-variant-numeric: tabular-nums;
       letter-spacing: 0.04em;
@@ -1901,6 +1906,11 @@
               <p class="error" data-err="otp"></p>
             </div>
             <button type="button" class="btn btn-ghost" id="send-otp">發送驗證碼</button>
+            <p class="submit-wait otp-wait" id="otp-wait" role="status" aria-live="polite" hidden>
+              <span class="submit-spin" aria-hidden="true"></span>
+              <strong>驗證碼寄送中</strong>
+              <span>系統正在處理，請勿再按第二次；收到回應後會顯示結果。</span>
+            </p>
           </div>
         </article>
         <div class="actions">
@@ -2139,6 +2149,7 @@
     let termsRead = false;
     let otpLeft = 0;
     let otpTimer = null;
+    let otpSending = false;
     let submitting = false;
     let submitTimer = null;
     let ownerNameComposing = false;
@@ -2997,6 +3008,7 @@
       return data;
     }
     function startOtpCount() {
+      if (otpTimer) clearInterval(otpTimer);
       otpLeft = 60;
       const btn = document.getElementById("send-otp");
       const tick = () => {
@@ -3009,6 +3021,7 @@
       otpTimer = setInterval(tick, 1000);
     }
     async function sendOtp() {
+      if (otpSending || otpLeft > 0) return;
       if (!previewAgreed()) {
         setErr("agreePreview", "請先確認契約預覽並勾選同意");
         document.getElementById("agreePreview").focus();
@@ -3017,12 +3030,30 @@
       if (!validateStep1()) { showPanel(2); return; }
       if (!validateCare()) { showPanel(3); return; }
       const email = val("ownerEmail");
+      const button = document.getElementById("send-otp");
+      const wait = document.getElementById("otp-wait");
+      const verify = document.getElementById("email-verify");
+      otpSending = true;
+      button.disabled = true;
+      button.textContent = "寄送中，請稍候…";
+      wait.hidden = false;
+      verify.setAttribute("aria-busy", "true");
+      showBanner(4, "");
+      announce("驗證碼寄送中，系統正在處理，請勿重複點擊。");
       try {
         await callGas({ action: "sendOtp", formType: "boarding", email: email, owner: collectForm().owner });
-startOtpCount();
+        startOtpCount();
         showBanner(4, "驗證碼已寄到 " + email + "。請於 10 分鐘內輸入；若沒看到，請看垃圾信件或促銷分頁。", "ok");
       } catch (err) {
         showBanner(4, err.message || "驗證碼發送失敗，請稍後再試。");
+      } finally {
+        otpSending = false;
+        wait.hidden = true;
+        verify.removeAttribute("aria-busy");
+        if (otpLeft <= 0) {
+          button.disabled = false;
+          button.textContent = "發送驗證碼";
+        }
       }
     }
     function stopSubmitWait() {
