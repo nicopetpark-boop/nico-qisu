@@ -2378,7 +2378,7 @@
       petCards().forEach((petCard) => {
         const id = petCard.getAttribute("data-pet-id");
         const fromPet = collectPetLite(petCard);
-        if (id && !saved[id]) saved[id] = fromPet;
+        if (id && !saved[id]) saved[id] = Object.assign({}, petCareStore[id] || {}, fromPet);
       });
       root.innerHTML = "";
       petCards().forEach((petCard, i) => {
